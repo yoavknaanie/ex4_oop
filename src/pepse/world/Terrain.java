@@ -44,20 +44,6 @@ public class Terrain {
         return blocks;
     }
 
-//    public List<Block> createInRange(int minX, int maxX) {
-//        int leftBlockLocation = (int) Math.floor((double) minX /Block.SIZE) * Block.SIZE;
-//        int rightBlockLocation = (int) Math.floor((double) maxX /Block.SIZE) * Block.SIZE;
-////        int numberOfBricksInRow = (rightBlockLocation - leftBlockLocation)/Block.SIZE;
-//        List<Block> blocks = new ArrayList<Block>();
-//
-//        for(int colX = leftBlockLocation; colX != rightBlockLocation; colX += Block.SIZE) {
-//            int y = (int) Math.floor((double) groundHeightAtX0 / Block.SIZE) * Block.SIZE;
-//            for (; y < windowDimensions.y(); y += Block.SIZE) {
-//                addBlockToBlock(colX, y, blocks);
-//            }
-//        }
-//        return blocks;
-//    }
 
     private static void addBlockToBlock(int colX, int y, List<Block> blocks) {
         RectangleRenderable groundRender =
