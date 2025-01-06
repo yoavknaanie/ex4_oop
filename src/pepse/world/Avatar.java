@@ -1,6 +1,7 @@
 package pepse.world;
 
 import danogl.GameObject;
+import danogl.collisions.Collision;
 import danogl.gui.ImageReader;
 import danogl.gui.Sound;
 import danogl.gui.UserInputListener;
@@ -49,33 +50,31 @@ public class Avatar extends GameObject {
     public void update(float deltaTime) {
         super.update(deltaTime);
         float xVel = 0;
-        //if standing
-//        if (!isJump && ((inputListener.isKeyPressed(KeyEvent.VK_LEFT) &&
-//                inputListener.isKeyPressed(KeyEvent.VK_RIGHT)) ||
-//                (!inputListener.isKeyPressed(KeyEvent.VK_LEFT) &&
-//                        !inputListener.isKeyPressed(KeyEvent.VK_RIGHT)))){
-//                increaceEnergy(1);
-//        } else {
-        if(inputListener.isKeyPressed(KeyEvent.VK_LEFT)){
-            xVel -= VELOCITY_X;
-        }
-        if(inputListener.isKeyPressed(KeyEvent.VK_RIGHT)){
-            xVel += VELOCITY_X;
-        }
+
         if(inputListener.isKeyPressed(KeyEvent.VK_SPACE) && getVelocity().y() == 0){
             if(energyLevel >= JUMPING_ENERGY_INTAKE) {
                 transform().setVelocityY(VELOCITY_Y);
                 increaceEnergy(-JUMPING_ENERGY_INTAKE);
             }
         }
-        // if no movement sideways
-        if(xVel == 0){
-            if(getVelocity().y() == 0){
-                increaceEnergy(1);
-            }
+
+        if(inputListener.isKeyPressed(KeyEvent.VK_LEFT)){
+            xVel -= VELOCITY_X;
         }
-        else if (energyLevel >= SIDES_MOVES_ENERGY_INTAKE){
-            increaceEnergy(-SIDES_MOVES_ENERGY_INTAKE);
+        if(inputListener.isKeyPressed(KeyEvent.VK_RIGHT)){
+            xVel += VELOCITY_X;
+        }
+        // if there is no movement sideways
+        if(xVel == 0 && getVelocity().y() == 0){
+            increaceEnergy(1);
+        }
+        else if (xVel != 0 && getVelocity().y() == 0 ){ // if moves sidways
+            if (energyLevel >= SIDES_MOVES_ENERGY_INTAKE){ // if you have energy for this
+                increaceEnergy(-SIDES_MOVES_ENERGY_INTAKE);
+            }
+            else{ // if you dont have energy, dont move
+                xVel = 0;
+            }
         }
         transform().setVelocityX(xVel);
     }
@@ -87,7 +86,18 @@ public class Avatar extends GameObject {
         } else if (energyLevel < 0) {
             energyLevel = 0;
         }
-    // some code for rendering the energy level
+    }
+
+    public int getEnergyLevel() {
+        return (int) energyLevel;
+    }
+
+    @Override
+    public void onCollisionEnter(GameObject other, Collision collision) {
+        super.onCollisionEnter(other, collision);
+        if (other.getTag().equals("block")) {
+            this.transform().setVelocityY(0);
+        }
     }
 }
 

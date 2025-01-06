@@ -8,10 +8,7 @@ import danogl.gui.SoundReader;
 import danogl.gui.UserInputListener;
 import danogl.gui.WindowController;
 import danogl.util.Vector2;
-import pepse.world.Avatar;
-import pepse.world.Block;
-import pepse.world.Sky;
-import pepse.world.Terrain;
+import pepse.world.*;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
@@ -23,6 +20,7 @@ public class PepseGameManager extends GameManager {
     private static final int seed = 42;
     private static final int CYCLE_LENGTH = 30;
     private Terrain terrain;
+    private static final Vector2 ENERGY_POSITION =  new Vector2(10, 10);
 
     @Override
     public void initializeGame(ImageReader imageReader, SoundReader soundReader,
@@ -47,6 +45,7 @@ public class PepseGameManager extends GameManager {
         gameObjects().addGameObject(SunHalo.create(sun), Layer.BACKGROUND);
 
         createAvatar(inputListener, imageReader);
+
     }
 
     private void createTerrain() {
@@ -60,8 +59,12 @@ public class PepseGameManager extends GameManager {
     private void createAvatar(UserInputListener inputListener, ImageReader imageReader) {
         float avatarFloorY = terrain.getGroundHeightAtX0();
         Vector2 avatarFloorPos = new Vector2(0, avatarFloorY);
-        GameObject avatar = new Avatar(avatarFloorPos,  inputListener, imageReader);
+        Avatar avatar = new Avatar(avatarFloorPos,  inputListener, imageReader);
         gameObjects().addGameObject(avatar);
+
+        EnergyRenderer energyDisplay = new EnergyRenderer(ENERGY_POSITION,
+                avatar::getEnergyLevel);
+        gameObjects().addGameObject(energyDisplay, Layer.UI);
     }
 
     private void createSky() {
