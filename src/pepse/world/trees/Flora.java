@@ -11,6 +11,15 @@ import java.util.*;
 import java.util.List;
 
 public class Flora {
+    private static final float LEAF_CREATION_PROBABILITY = 0.35f;
+    private static final float FRUIT_CREATION_PROBABILITY = 0.2f; //todo pick right prob
+    private static final float TREE_PLANT_PROBABILITY_THRESHOLD = 0.9f;
+    private static final float TASK_DELAY_MULTIPLIER = 10f;
+    private static final float TRANSITION_DURATION = 5f;
+    private static final float MIN_ANGLE = -15f;
+    private static final float MAX_ANGLE = 15f;
+    private static final float SHRINK_AMOUNT = 15f;
+
     private final Terrain terrain;
     private static final Random random = new Random();
     private List<Tree> trees = new ArrayList<Tree>();
@@ -29,66 +38,90 @@ public class Flora {
         return trees;
     }
 
+
+
     public List<Leaf> createLeaves(Tree tree){
-        // height of leaves: from [ground] till [2*treeHeight]
-        // X of trees: from [center of tree-(treeWidth*4)] till [center of tree+(treeWidth*4)]
-        // create a matrix of height*width
-        // itarate through the matrix, and in probability of 0.1 create a leaf in that position
-        List<Leaf> leaves = new ArrayList<>();
+        List<Leaf> leaves = new ArrayList<Leaf>();
+        List<Fruit> fruits = new ArrayList<Fruit>();
         float treeHeight = tree.getTreeTrunkHeight();
         float treeWidth = Block.SIZE;
-
         // bounds for leaf creation
         float minY = tree.getTopLeftCorner().y() - (treeHeight); // top of tree
         float maxY = tree.getTopLeftCorner().y() + treeHeight - (2*Block.SIZE);
         float minX = tree.getTopLeftCorner().x() - 2 * treeWidth;
         float maxX = tree.getTopLeftCorner().x() + 2 * treeWidth;
-
+        // add leaves:
         for (float y = minY; y <= maxY; y += Block.SIZE) {
             for (float x = minX; x <= maxX; x += Block.SIZE) {
-                if (random.nextFloat() <= 0.35) {
-                    Leaf leaf = new Leaf(new Vector2(x, y));
+                // for each tree, create leaves:
+                if (random.nextFloat() <= LEAF_CREATION_PROBABILITY) {
+                    Leaf leaf = createLeafWithTasks(x, y);
                     leaves.add(leaf);
-
-                    new ScheduledTask(
-                            leaf,
-                            10*random.nextFloat(),
-                            false,
-                            () -> {new Transition<Float>(
-                                    leaf,
-                                    (Float angle) -> leaf.renderer().setRenderableAngle(angle),
-                                    -15f,
-                                    15f,
-                                    Transition.LINEAR_INTERPOLATOR_FLOAT,
-                                    5,
-                                    Transition.TransitionType.TRANSITION_BACK_AND_FORTH,
-                                    null);
-                            }
-                    );
-                    new ScheduledTask(
-                            leaf,
-                            10*random.nextFloat(),
-                            false,
-                            () -> {
-                                new Transition<Float>(leaf,
-                                        (Float width) -> leaf.setDimensions(new Vector2(width, leaf.getDimensions().y())),
-                                        leaf.getDimensions().x(),
-                                        leaf.getDimensions().x() - 15,
-                                        Transition.LINEAR_INTERPOLATOR_FLOAT,
-                                        5,
-                                        Transition.TransitionType.TRANSITION_BACK_AND_FORTH,
-                                        null);
-                            }
-                    );
+                }
+                // for each tree, create fruits:
+                if (random.nextFloat() <= FRUIT_CREATION_PROBABILITY) {
+                    Fruit fruit = createFruit(x,y);
+                    fruits.add(fruit);
                 }
             }
         }
         return leaves;
     }
 
+    private Leaf createLeafWithTasks(float x, float y) {
+        Leaf leaf = new Leaf(new Vector2(x, y));
+        scheduleLeafAngleTask(leaf);
+        scheduleLeafShrinkTask(leaf);
+        return leaf;
+    }
+
+    private void scheduleLeafAngleTask(Leaf leaf) {
+        new ScheduledTask(
+                leaf,
+                TASK_DELAY_MULTIPLIER * random.nextFloat(),
+                false,
+                () -> createAngleTransition(leaf)
+        );
+    }
+
+    private void scheduleLeafShrinkTask(Leaf leaf) {
+        new ScheduledTask(
+                leaf,
+                TASK_DELAY_MULTIPLIER * random.nextFloat(),
+                false,
+                () -> createShrinkTransition(leaf)
+        );
+    }
+
+    private void createAngleTransition(Leaf leaf) {
+        new Transition<>(
+                leaf,
+                (Float angle) -> leaf.renderer().setRenderableAngle(angle),
+                MIN_ANGLE,
+                MAX_ANGLE,
+                Transition.LINEAR_INTERPOLATOR_FLOAT,
+                TRANSITION_DURATION,
+                Transition.TransitionType.TRANSITION_BACK_AND_FORTH,
+                null
+        );
+    }
+
+    private void createShrinkTransition(Leaf leaf) {
+        new Transition<>(
+                leaf,
+                (Float width) -> leaf.setDimensions(new Vector2(width, leaf.getDimensions().y())),
+                leaf.getDimensions().x(),
+                leaf.getDimensions().x() - SHRINK_AMOUNT,
+                Transition.LINEAR_INTERPOLATOR_FLOAT,
+                TRANSITION_DURATION,
+                Transition.TransitionType.TRANSITION_BACK_AND_FORTH,
+                null
+        );
+    }
+
     private static boolean plantOrNotToPlant(){
         float randomFloat = random.nextFloat(0,1);
-        return randomFloat > 0.9;
+        return randomFloat > TREE_PLANT_PROBABILITY_THRESHOLD;
     }
 
     public Flora(Terrain terrain){
