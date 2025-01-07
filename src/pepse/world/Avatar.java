@@ -23,13 +23,24 @@ public class Avatar extends GameObject {
     private static final float VELOCITY_Y = -400;
     private static final float SIDES_MOVES_ENERGY_INTAKE = 0.5f;
     private static final float JUMPING_ENERGY_INTAKE = 10;
+    private static final double PAUSE_BETWEEN_ANIMAITONS = 0.3;
     //    private static final float GRAVITY = 650;
     // fields
     private final UserInputListener inputListener;
     private final ImageReader imageReader;
+    private final AnimationRenderable idleAnimaiton;
+    private final AnimationRenderable jumpingAnimaiton;
+    private final AnimationRenderable sidesAnimaiton;
     private float energyLevel = MAX_ENERGY;
     private boolean isJump = false;
-    boolean jump = false;
+
+    // animations
+    private static final String[] IDLE_ANIMATION = new String[]{"assets/idle_0.png", "assets/idle_1.png",
+            "assets/idle_2.png", "assets/idle_3.png"};
+    private static final String[] JUMP_ANIMATION = new String[]{"assets/jump_0.png", "assets/jump_1.png",
+            "assets/jump_2.png", "assets/jump_3.png"};
+    private static final String[] SIDES_ANIMATION = new String[]{"assets/run_0.png", "assets/run_1.png",
+            "assets/run_2.png", "assets/run_3.png", "assets/run_4.png", "assets/run_5.png"};
 
     public Avatar(Vector2 pos, UserInputListener inputListener, ImageReader imageReader) {
         super(pos.subtract(new Vector2(0, avatarDimensions.y())), avatarDimensions,
@@ -44,20 +55,30 @@ public class Avatar extends GameObject {
 //        todo
 //        animationRenderable = new AnimationRenderable[NUM_OF_ANIMATION_SEQUENCES];
 //        formAnimations();
+        this.idleAnimaiton = new AnimationRenderable(IDLE_ANIMATION, imageReader, false,
+                PAUSE_BETWEEN_ANIMAITONS);
+        this.jumpingAnimaiton = new AnimationRenderable(JUMP_ANIMATION, imageReader, false,
+                PAUSE_BETWEEN_ANIMAITONS);
+        this.sidesAnimaiton = new AnimationRenderable(SIDES_ANIMATION, imageReader, false,
+                PAUSE_BETWEEN_ANIMAITONS);
+        renderer().setRenderable(this.idleAnimaiton);
     }
 
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
+        float prevXVel = getVelocity().x();
+        float prevYVel = getVelocity().y();
         float xVel = 0;
 
         if(inputListener.isKeyPressed(KeyEvent.VK_SPACE) && getVelocity().y() == 0){
             if(energyLevel >= JUMPING_ENERGY_INTAKE) {
                 transform().setVelocityY(VELOCITY_Y);
                 increaceEnergy(-JUMPING_ENERGY_INTAKE);
+                renderer().setRenderable(jumpingAnimaiton);
+                isJump = true;
             }
         }
-
         if(inputListener.isKeyPressed(KeyEvent.VK_LEFT)){
             xVel -= VELOCITY_X;
         }
@@ -76,8 +97,51 @@ public class Avatar extends GameObject {
                 xVel = 0;
             }
         }
+
+        //transform
+        manageAnimation(prevXVel, xVel, prevYVel);
         transform().setVelocityX(xVel);
+
     }
+
+//    fill this function
+    private void manageAnimation(float prevXVal, float xVel, float prevYVal) {
+        if ((prevYVal != 0) && (getVelocity().y() == 0)){
+            renderer().setRenderable(idleAnimaiton);
+        }
+        if (prevXVal != xVel){
+            if (xVel == 0){
+                if (getVelocity().y() == 0){
+                    renderer().setRenderable(idleAnimaiton);
+                }
+                else {
+                    renderer().setRenderable(jumpingAnimaiton);
+                }
+            }
+            else if (xVel > 0){
+                renderer().setRenderable(sidesAnimaiton);
+                renderer().setIsFlippedHorizontally(false);
+            }
+            else {
+                renderer().setRenderable(sidesAnimaiton);
+                renderer().setIsFlippedHorizontally(true);
+            }
+        }
+    }
+
+//    private void manageAnimation(float prevXVal, float xVel) {
+//        if (xVel > 0) { // Moving right
+//            renderer().setRenderable(sidesAnimation);
+//            renderer().setIsFlippedHorizontally(false);
+//        } else if (xVel < 0) { // Moving left
+//            renderer().setRenderable(sidesAnimation);
+//            renderer().setIsFlippedHorizontally(true);
+//        } else if (getVelocity().y() != 0) { // Jumping or falling
+//            renderer().setRenderable(jumpingAnimation);
+//        } else { // Idle
+//            renderer().setRenderable(idleAnimation);
+//        }
+//    }
 
     private void increaceEnergy(float val){
         energyLevel+=val;

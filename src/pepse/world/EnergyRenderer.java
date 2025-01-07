@@ -22,6 +22,6 @@ public class EnergyRenderer extends GameObject {
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
-        textRenderable.setString(String.format("%d", energySupplier.get()));
+        textRenderable.setString(String.format("%d%%", energySupplier.get()));
     }
 }
