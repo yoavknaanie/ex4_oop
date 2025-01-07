@@ -14,10 +14,11 @@ public class Fruit extends GameObject{
     private static final Color BASE_FRUIT_COLOR = new Color (255, 255, 0);
     public static final String FRUIT_TAG = "fruit";
 
-
     public Fruit(Vector2 location) {
         super(location, dimensions,
                 new OvalRenderable(ColorSupplier.approximateColor(BASE_FRUIT_COLOR, 50)));
         setTag(FRUIT_TAG);
     }
+
+
 }

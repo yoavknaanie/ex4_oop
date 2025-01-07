@@ -3,6 +3,7 @@ package pepse;
 import danogl.GameManager;
 import danogl.GameObject;
 import danogl.collisions.Layer;
+import danogl.components.ScheduledTask;
 import danogl.gui.ImageReader;
 import danogl.gui.SoundReader;
 import danogl.gui.UserInputListener;
@@ -13,14 +14,15 @@ import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
 import pepse.world.trees.Flora;
+import pepse.world.trees.Fruit;
 import pepse.world.trees.Leaf;
 import pepse.world.trees.Tree;
-
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class PepseGameManager extends GameManager {
+    public static final String REMOVE_TAG = "remove";
     private Vector2 windowDimensions;
     private static final int seed = 42;
     private static final int CYCLE_LENGTH = 30;
@@ -59,13 +61,17 @@ public class PepseGameManager extends GameManager {
 
     private void createFlora(Terrain terrain) {
         Flora flora = new Flora(terrain);
+        // todo when implamant infinite world, minX shouldnt be 0:
         List<Tree> trees = flora.createInRange(0, (int) windowDimensions.x(), terrain);
-        // infinite world minX shouldnt be 0?
         for (Tree tree: trees) {
             gameObjects().addGameObject(tree, Layer.STATIC_OBJECTS);
             List<Leaf> leaves = flora.createLeaves(tree);
             for (Leaf leaf: leaves) {
                 gameObjects().addGameObject(leaf, Layer.BACKGROUND);
+            }
+            List<Fruit> fruits = flora.createFruits(tree);
+            for (Fruit fruit: fruits){
+                gameObjects().addGameObject(fruit, Layer.STATIC_OBJECTS);
             }
         }
     }
@@ -95,6 +101,32 @@ public class PepseGameManager extends GameManager {
         gameObjects().addGameObject(sky, Layer.BACKGROUND);
     }
 
+    @Override
+    public void update(float deltaTime) {
+        super.update(deltaTime);
+        for (GameObject gameObject: gameObjects()) {
+            if (gameObject.getTag().equals(REMOVE_TAG)) {
+
+                //todo fix the revival of fruit:
+//                returnFruitInCycleLen(gameObject.getCenter());
+
+                gameObjects().removeGameObject(gameObject, Layer.STATIC_OBJECTS);
+            } else if (gameObject.getTag().equals("revival")) {
+//                gameObjects().addGameObject(gameObject, Layer.STATIC_OBJECTS);
+            }
+        }
+    }
+
+//    private void returnFruitInCycleLen(Vector2 center) {
+//        // todo - run the following function in CYCLE_LENGTH delay
+//        gameObjects().addGameObject(new Fruit(center));
+//        new ScheduledTask(
+//                new Fruit(center),
+//                CYCLE_LENGTH,
+//                false,
+//                () -> System.out.println("check")
+//        );
+//    }
 
     public static void main(String[] args) {
         new PepseGameManager().run();

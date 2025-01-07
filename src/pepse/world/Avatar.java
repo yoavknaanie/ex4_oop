@@ -17,6 +17,7 @@ public class Avatar extends GameObject {
     //    constants
     private static final String AVTAR_IMG_PATH = "assets/idle_0.png";
     private static final String AVATAR_TAG = "avatar";
+    private static final String REMOVE_TAG = "remove";
     private static final int MAX_ENERGY = 100;
     private static final Vector2 avatarDimensions = new Vector2(50, 80); // todo check size
     private static final float VELOCITY_X = 400;
@@ -152,6 +153,11 @@ public class Avatar extends GameObject {
         super.onCollisionEnter(other, collision);
         if (other.getTag().equals("block")) {
             this.transform().setVelocityY(0);
+        }
+        if (other.getTag().equals("fruit")) {
+            other.setTag(REMOVE_TAG);
+            increaceEnergy(10);
+            // todo fruit gone for cycle_len and then come back at the same place
         }
     }
 }

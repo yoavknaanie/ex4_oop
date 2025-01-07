@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.List;
 
 public class Flora {
-    private static final float LEAF_CREATION_PROBABILITY = 0.35f;
+    private static final float LEAF_CREATION_PROBABILITY = 0.7f;
     private static final float FRUIT_CREATION_PROBABILITY = 0.2f; //todo pick right prob
     private static final float TREE_PLANT_PROBABILITY_THRESHOLD = 0.9f;
     private static final float TASK_DELAY_MULTIPLIER = 10f;
@@ -38,11 +38,36 @@ public class Flora {
         return trees;
     }
 
+    public List<Fruit> createFruits(Tree tree){
+        List<Fruit> fruits = new ArrayList<Fruit>();
+        float treeHeight = tree.getTreeTrunkHeight();
+        float treeWidth = Block.SIZE;
+        // bounds for fruit creation todo i think fruits shouldnt be on trunk...
+        float minY = tree.getTopLeftCorner().y() - (treeHeight); // top of tree
+        float maxY = tree.getTopLeftCorner().y() + treeHeight - (2*Block.SIZE);
+        float minX = tree.getTopLeftCorner().x() - 2 * treeWidth;
+        float maxX = tree.getTopLeftCorner().x() + 2 * treeWidth;
+        // Trunk bounds
+        float trunkMinX = tree.getTopLeftCorner().x() - treeWidth / 2; // Centered trunk width
+        float trunkMaxX = tree.getTopLeftCorner().x() + treeWidth / 2;
 
+        // add fruits:
+        for (float y = minY; y <= maxY; y += Block.SIZE) {
+            for (float x = minX; x <= maxX; x += Block.SIZE) {
+                if (x >= trunkMinX && x <= trunkMaxX) {
+                    continue; // Skip positions on the trunk
+                }
+                if (random.nextFloat() <= FRUIT_CREATION_PROBABILITY) {
+                    Fruit fruit = new Fruit(new Vector2(x, y));
+                    fruits.add(fruit);
+                }
+            }
+        }
+        return fruits;
+    }
 
     public List<Leaf> createLeaves(Tree tree){
         List<Leaf> leaves = new ArrayList<Leaf>();
-        List<Fruit> fruits = new ArrayList<Fruit>();
         float treeHeight = tree.getTreeTrunkHeight();
         float treeWidth = Block.SIZE;
         // bounds for leaf creation
@@ -53,15 +78,9 @@ public class Flora {
         // add leaves:
         for (float y = minY; y <= maxY; y += Block.SIZE) {
             for (float x = minX; x <= maxX; x += Block.SIZE) {
-                // for each tree, create leaves:
                 if (random.nextFloat() <= LEAF_CREATION_PROBABILITY) {
                     Leaf leaf = createLeafWithTasks(x, y);
                     leaves.add(leaf);
-                }
-                // for each tree, create fruits:
-                if (random.nextFloat() <= FRUIT_CREATION_PROBABILITY) {
-                    Fruit fruit = createFruit(x,y);
-                    fruits.add(fruit);
                 }
             }
         }
