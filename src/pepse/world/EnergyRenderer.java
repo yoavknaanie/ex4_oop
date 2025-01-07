@@ -4,7 +4,6 @@ import danogl.GameObject;
 import danogl.gui.rendering.Renderable;
 import danogl.gui.rendering.TextRenderable;
 import danogl.util.Vector2;
-
 import java.util.function.Supplier;
 
 public class EnergyRenderer extends GameObject {

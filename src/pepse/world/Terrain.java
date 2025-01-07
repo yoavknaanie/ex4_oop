@@ -3,7 +3,6 @@ package pepse.world;
 import danogl.gui.rendering.RectangleRenderable;
 import danogl.util.Vector2;
 import pepse.util.ColorSupplier;
-import pepse.util.NoiseGenerator;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -12,7 +11,7 @@ import java.util.List;
 
 public class Terrain {
     private static final Color BASE_GROUND_COLOR = new Color(212, 123,74);
-    public static final String GROUND_tag = "ground";
+    public static final String GROUND_TAG = "ground";
     private final Vector2 windowDimensions;
     private final int seed;
     public final float groundHeightAtX0; //todo should be static?
@@ -50,7 +49,7 @@ public class Terrain {
                 new RectangleRenderable(ColorSupplier.approximateColor(BASE_GROUND_COLOR));
         Vector2 newBlockLocation = new Vector2(colX, y);
         Block block = new Block(newBlockLocation, groundRender);
-        block.setTag(GROUND_tag);
+        block.setTag(GROUND_TAG);
         blocks.add(block);
     }
 

@@ -12,8 +12,13 @@ import pepse.world.*;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
+import pepse.world.trees.Flora;
+import pepse.world.trees.Leaf;
+import pepse.world.trees.Tree;
 
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class PepseGameManager extends GameManager {
     private Vector2 windowDimensions;
@@ -46,6 +51,23 @@ public class PepseGameManager extends GameManager {
 
         createAvatar(inputListener, imageReader);
 
+        // create flora
+        createFlora(terrain);
+        gameObjects().layers().shouldLayersCollide(Layer.DEFAULT, Layer.STATIC_OBJECTS, true);
+
+    }
+
+    private void createFlora(Terrain terrain) {
+        Flora flora = new Flora(terrain);
+        List<Tree> trees = flora.createInRange(0, (int) windowDimensions.x(), terrain);
+        // infinite world minX shouldnt be 0?
+        for (Tree tree: trees) {
+            gameObjects().addGameObject(tree, Layer.STATIC_OBJECTS);
+            List<Leaf> leaves = flora.createLeaves(tree);
+            for (Leaf leaf: leaves) {
+                gameObjects().addGameObject(leaf, Layer.BACKGROUND);
+            }
+        }
     }
 
     private void createTerrain() {
