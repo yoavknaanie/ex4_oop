@@ -1,6 +1,7 @@
 package pepse.world.trees;
 
 import danogl.GameObject;
+import danogl.components.ScheduledTask;
 import danogl.components.Transition;
 import danogl.util.Vector2;
 import pepse.world.Block;
@@ -49,22 +50,36 @@ public class Flora {
                     Leaf leaf = new Leaf(new Vector2(x, y));
                     leaves.add(leaf);
 
-                    new Transition<Float>(leaf,
-                            (Float angle) -> leaf.renderer().setRenderableAngle(angle),
-                            -15f,
-                            15f,
-                            Transition.LINEAR_INTERPOLATOR_FLOAT,
-                            5, // cycleLength
-                            Transition.TransitionType.TRANSITION_BACK_AND_FORTH,
-                            null);
-                    new Transition<Float>(leaf,
-                            (Float width) -> leaf.setDimensions(new Vector2(width, leaf.getDimensions().y())),
-                            leaf.getDimensions().x(),
-                            leaf.getDimensions().x() - 15,
-                            Transition.LINEAR_INTERPOLATOR_FLOAT,
-                            5, // cycleLength
-                            Transition.TransitionType.TRANSITION_BACK_AND_FORTH,
-                            null);
+                    new ScheduledTask(
+                            leaf,
+                            10*random.nextFloat(),
+                            false,
+                            () -> {new Transition<Float>(
+                                    leaf,
+                                    (Float angle) -> leaf.renderer().setRenderableAngle(angle),
+                                    -15f,
+                                    15f,
+                                    Transition.LINEAR_INTERPOLATOR_FLOAT,
+                                    5,
+                                    Transition.TransitionType.TRANSITION_BACK_AND_FORTH,
+                                    null);
+                            }
+                    );
+                    new ScheduledTask(
+                            leaf,
+                            10*random.nextFloat(),
+                            false,
+                            () -> {
+                                new Transition<Float>(leaf,
+                                        (Float width) -> leaf.setDimensions(new Vector2(width, leaf.getDimensions().y())),
+                                        leaf.getDimensions().x(),
+                                        leaf.getDimensions().x() - 15,
+                                        Transition.LINEAR_INTERPOLATOR_FLOAT,
+                                        5,
+                                        Transition.TransitionType.TRANSITION_BACK_AND_FORTH,
+                                        null);
+                            }
+                    );
                 }
             }
         }
