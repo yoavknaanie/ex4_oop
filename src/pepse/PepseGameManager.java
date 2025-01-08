@@ -29,6 +29,7 @@ public class PepseGameManager extends GameManager {
     private Terrain terrain;
     private static final Vector2 ENERGY_POSITION =  new Vector2(10, 10);
     private Avatar avatar;
+    private static final int CLOUD_LAYER = Layer.BACKGROUND + 1;
 
     @Override
     public void initializeGame(ImageReader imageReader, SoundReader soundReader,
@@ -66,7 +67,7 @@ public class PepseGameManager extends GameManager {
         Cloud cloud = new Cloud(windowDimensions, this::createDrop, avatar::isAvatarJumping);
         List<CloudPiece> blocks = cloud.getBlocks();
         for (CloudPiece block: blocks) {
-            gameObjects().addGameObject(block,Layer.BACKGROUND);
+            gameObjects().addGameObject(block,CLOUD_LAYER);
         }
     }
 
@@ -82,7 +83,7 @@ public class PepseGameManager extends GameManager {
                 gameObjects().addGameObject(leaf, Layer.BACKGROUND);
             }
             List<Fruit> fruits = flora.createFruits(tree);
-            for (Fruit fruit: fruits){
+            for (Fruit fruit: fruits) {
                 gameObjects().addGameObject(fruit, Layer.STATIC_OBJECTS);
             }
         }
@@ -114,7 +115,7 @@ public class PepseGameManager extends GameManager {
     }
 
     public void createDrop(GameObject gameObject) {
-        gameObjects().addGameObject(gameObject);
+        gameObjects().addGameObject(gameObject, Layer.BACKGROUND);
         new ScheduledTask(
                 gameObject,
                 3,
@@ -122,33 +123,6 @@ public class PepseGameManager extends GameManager {
                 () -> gameObjects().removeGameObject(gameObject)
         );
     }
-
-//    @Override
-//    public void update(float deltaTime) {
-//        super.update(deltaTime);
-//        for (GameObject gameObject: gameObjects()) {
-//            if (gameObject.getTag().equals(REMOVE_TAG)) {
-//
-//                //todo fix the revival of fruit:
-////                returnFruitInCycleLen(gameObject.getCenter());
-//
-//                gameObjects().removeGameObject(gameObject, Layer.STATIC_OBJECTS);
-//            } else if (gameObject.getTag().equals("revival")) {
-////                gameObjects().addGameObject(gameObject, Layer.STATIC_OBJECTS);
-//            }
-//        }
-//    }
-
-//    private void returnFruitInCycleLen(Vector2 center) {
-//        // todo - run the following function in CYCLE_LENGTH delay
-//        gameObjects().addGameObject(new Fruit(center));
-//        new ScheduledTask(
-//                new Fruit(center),
-//                CYCLE_LENGTH,
-//                false,
-//                () -> System.out.println("check")
-//        );
-//    }
 
     public static void main(String[] args) {
         new PepseGameManager().run();

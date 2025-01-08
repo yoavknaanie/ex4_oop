@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 public class Cloud{
     private static final Vector2 topLeftCorner = new Vector2(-6 * Block.SIZE ,4 * Block.SIZE);
     private List<CloudPiece> cloudBlocks = new ArrayList<CloudPiece>();
-    private static final float TRANSITION_DURATION = 10f;
+    private static final float TRANSITION_DURATION = 50f;
 
     public Cloud(Vector2 windowDimensions, Consumer<GameObject> addObject,
                  BooleanSupplier avatarJumpingChecker) {

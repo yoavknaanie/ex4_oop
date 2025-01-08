@@ -16,11 +16,10 @@ import java.util.function.Consumer;
 public class CloudPiece extends GameObject {
     private static final Color BASE_CLOUD_COLOR = new Color(255, 255, 255);
     private static final Color BASE_DROP_COLOR = new Color(30, 30, 200);
-//    private static final Color BASE_DROP_COLOR = new Color(0, 0, 0);
     private static final Vector2 dimensions = new Vector2(Block.SIZE, Block.SIZE);
     private static final Vector2 DROP_DIM = new Vector2(Block.SIZE/4f, Block.SIZE/4f);
     private static final Random random = new Random();
-    private static final float FRUIT_CREATION_PROBABILITY = 0.01f;
+    private static final float RAIN_DROP_PROBABILTY = 0.1f;
     public static final float DROP_TRANSITION_TIME = 1.5f;
     private final BooleanSupplier avatarJumpingChecker;
     private Consumer<GameObject> addObject;
@@ -42,7 +41,7 @@ public class CloudPiece extends GameObject {
     public void update(float deltaTime) {
         super.update(deltaTime);
         if (avatarJumpingChecker.getAsBoolean() && !dropingRain){
-            if (random.nextFloat() <= FRUIT_CREATION_PROBABILITY) {
+            if (random.nextFloat() <= RAIN_DROP_PROBABILTY) {
                 dropingRain = true;
                 GameObject drop = new GameObject(this.getTopLeftCorner(), DROP_DIM,
                         new RectangleRenderable(BASE_DROP_COLOR));
@@ -75,7 +74,7 @@ public class CloudPiece extends GameObject {
 //                        () -> dropingRain = false);
             }
         }
-        else if (!avatarJumpingChecker.getAsBoolean()) {
+        if (!avatarJumpingChecker.getAsBoolean()) {
             dropingRain = false;
         }
     }

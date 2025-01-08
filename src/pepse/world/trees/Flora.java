@@ -142,7 +142,7 @@ public class Flora {
         );
     }
 
-    private static boolean plantOrNotToPlant(){
+    private static boolean plantOrNotToPlant() {
         float randomFloat = random.nextFloat(0,1);
         return randomFloat > TREE_PLANT_PROBABILITY_THRESHOLD;
     }
