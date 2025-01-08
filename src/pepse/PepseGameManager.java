@@ -3,6 +3,7 @@ package pepse;
 import danogl.GameManager;
 import danogl.GameObject;
 import danogl.collisions.Layer;
+import danogl.components.ScheduledTask;
 import danogl.gui.ImageReader;
 import danogl.gui.SoundReader;
 import danogl.gui.UserInputListener;
@@ -27,6 +28,7 @@ public class PepseGameManager extends GameManager {
     public static final int CYCLE_LENGTH = 4;
     private Terrain terrain;
     private static final Vector2 ENERGY_POSITION =  new Vector2(10, 10);
+    private Avatar avatar;
 
     @Override
     public void initializeGame(ImageReader imageReader, SoundReader soundReader,
@@ -61,7 +63,7 @@ public class PepseGameManager extends GameManager {
     }
 
     private void createCloud() {
-        Cloud cloud = new Cloud(windowDimensions);
+        Cloud cloud = new Cloud(windowDimensions, this::createDrop, avatar::isAvatarJumping);
         List<CloudPiece> blocks = cloud.getBlocks();
         for (CloudPiece block: blocks) {
             gameObjects().addGameObject(block,Layer.BACKGROUND);
@@ -97,7 +99,7 @@ public class PepseGameManager extends GameManager {
     private void createAvatar(UserInputListener inputListener, ImageReader imageReader) {
         float avatarFloorY = terrain.getGroundHeightAtX0();
         Vector2 avatarFloorPos = new Vector2(0, avatarFloorY);
-        Avatar avatar = new Avatar(avatarFloorPos,  inputListener, imageReader);
+        avatar = new Avatar(avatarFloorPos,  inputListener, imageReader);
         gameObjects().addGameObject(avatar);
 
         EnergyRenderer energyDisplay = new EnergyRenderer(ENERGY_POSITION,
@@ -109,6 +111,16 @@ public class PepseGameManager extends GameManager {
         // Create sky:
         GameObject sky = Sky.create(windowDimensions);
         gameObjects().addGameObject(sky, Layer.BACKGROUND);
+    }
+
+    public void createDrop(GameObject gameObject) {
+        gameObjects().addGameObject(gameObject);
+        new ScheduledTask(
+                gameObject,
+                3,
+                false,
+                () -> gameObjects().removeGameObject(gameObject)
+        );
     }
 
 //    @Override
