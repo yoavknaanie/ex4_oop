@@ -24,6 +24,10 @@ public class Flora {
     private static final Random random = new Random();
     private List<Tree> trees = new ArrayList<Tree>();
 
+    public Flora(Terrain terrain){
+        this.terrain = terrain;
+    }
+
     //    todo think about the return val:
     public List<Tree> createInRange(int minX, int maxX, Terrain terrain) {
 //        List<Tree> trees = new ArrayList<Tree>();
@@ -141,9 +145,5 @@ public class Flora {
     private static boolean plantOrNotToPlant(){
         float randomFloat = random.nextFloat(0,1);
         return randomFloat > TREE_PLANT_PROBABILITY_THRESHOLD;
-    }
-
-    public Flora(Terrain terrain){
-        this.terrain = terrain;
     }
 }

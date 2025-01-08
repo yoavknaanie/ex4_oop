@@ -25,7 +25,7 @@ public class PepseGameManager extends GameManager {
     public static final String REMOVE_TAG = "remove";
     private Vector2 windowDimensions;
     private static final int seed = 42;
-    private static final int CYCLE_LENGTH = 30;
+    public static final int CYCLE_LENGTH = 4;
     private Terrain terrain;
     private static final Vector2 ENERGY_POSITION =  new Vector2(10, 10);
 
@@ -101,21 +101,21 @@ public class PepseGameManager extends GameManager {
         gameObjects().addGameObject(sky, Layer.BACKGROUND);
     }
 
-    @Override
-    public void update(float deltaTime) {
-        super.update(deltaTime);
-        for (GameObject gameObject: gameObjects()) {
-            if (gameObject.getTag().equals(REMOVE_TAG)) {
-
-                //todo fix the revival of fruit:
-//                returnFruitInCycleLen(gameObject.getCenter());
-
-                gameObjects().removeGameObject(gameObject, Layer.STATIC_OBJECTS);
-            } else if (gameObject.getTag().equals("revival")) {
-//                gameObjects().addGameObject(gameObject, Layer.STATIC_OBJECTS);
-            }
-        }
-    }
+//    @Override
+//    public void update(float deltaTime) {
+//        super.update(deltaTime);
+//        for (GameObject gameObject: gameObjects()) {
+//            if (gameObject.getTag().equals(REMOVE_TAG)) {
+//
+//                //todo fix the revival of fruit:
+////                returnFruitInCycleLen(gameObject.getCenter());
+//
+//                gameObjects().removeGameObject(gameObject, Layer.STATIC_OBJECTS);
+//            } else if (gameObject.getTag().equals("revival")) {
+////                gameObjects().addGameObject(gameObject, Layer.STATIC_OBJECTS);
+//            }
+//        }
+//    }
 
 //    private void returnFruitInCycleLen(Vector2 center) {
 //        // todo - run the following function in CYCLE_LENGTH delay
