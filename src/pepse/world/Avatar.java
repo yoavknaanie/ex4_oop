@@ -27,6 +27,7 @@ public class Avatar extends GameObject {
     private static final float JUMPING_ENERGY_INTAKE = 10;
     private static final double PAUSE_BETWEEN_ANIMAITONS = 0.3;
     //    private static final float GRAVITY = 650;
+
     // fields
     private final UserInputListener inputListener;
     private final ImageReader imageReader;
@@ -69,8 +70,6 @@ public class Avatar extends GameObject {
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
-        float prevXVel = getVelocity().x();
-        float prevYVel = getVelocity().y();
         float xVel = 0;
 
         if(inputListener.isKeyPressed(KeyEvent.VK_SPACE) && getVelocity().y() == 0){
@@ -79,6 +78,7 @@ public class Avatar extends GameObject {
                 increaceEnergy(-JUMPING_ENERGY_INTAKE);
                 renderer().setRenderable(jumpingAnimaiton);
                 isJump = true;
+
             }
         }
         if(inputListener.isKeyPressed(KeyEvent.VK_LEFT)){
@@ -102,41 +102,18 @@ public class Avatar extends GameObject {
         }else{
             xVel = 0;
         }
-//        else if (getVelocity().y() == 0 ){ // if moves sidways
-//            if (energyLevel >= SIDES_MOVES_ENERGY_INTAKE){ // if you have energy for this
-//                increaceEnergy(-SIDES_MOVES_ENERGY_INTAKE);
-//            }
+        if (getVelocity().y() == 0){
+            isJump = false;
+        }
         //transform
         transform().setVelocityX(xVel);
     }
 
-    //    fill this function
-    private void manageAnimation(float prevXVal, float xVel, float prevYVal) {
-        if ((prevYVal != 0) && (getVelocity().y() == 0)){
-            renderer().setRenderable(idleAnimaiton);
-        }
-        if (prevXVal != xVel){
-            if (xVel == 0){
-                if (getVelocity().y() == 0){
-                    renderer().setRenderable(idleAnimaiton);
-                }
-                else {
-                    renderer().setRenderable(jumpingAnimaiton);
-                }
-            }
-            else if (xVel > 0){
-                renderer().setRenderable(sidesAnimaiton);
-                renderer().setIsFlippedHorizontally(false);
-            }
-            else {
-                renderer().setRenderable(sidesAnimaiton);
-                renderer().setIsFlippedHorizontally(true);
-            }
-        }
+    public boolean isAvatarJumping(){
+        return isJump;
     }
 
-
-    private void increaceEnergy(float val){
+    public void increaceEnergy(float val){
         energyLevel+=val;
         if (energyLevel > MAX_ENERGY){
             energyLevel = MAX_ENERGY;
@@ -154,9 +131,6 @@ public class Avatar extends GameObject {
         super.onCollisionEnter(other, collision);
         if (other.getTag().equals("block")) {
             this.transform().setVelocityY(0);
-        }
-        if (other.getTag().equals(Fruit.FRUIT_TAG)) {
-            increaceEnergy(10);
         }
     }
 }

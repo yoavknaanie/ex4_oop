@@ -3,13 +3,14 @@ package pepse;
 import danogl.GameManager;
 import danogl.GameObject;
 import danogl.collisions.Layer;
-import danogl.components.ScheduledTask;
 import danogl.gui.ImageReader;
 import danogl.gui.SoundReader;
 import danogl.gui.UserInputListener;
 import danogl.gui.WindowController;
 import danogl.util.Vector2;
 import pepse.world.*;
+import pepse.world.cloud.Cloud;
+import pepse.world.cloud.CloudPiece;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
@@ -18,8 +19,6 @@ import pepse.world.trees.Fruit;
 import pepse.world.trees.Leaf;
 import pepse.world.trees.Tree;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 public class PepseGameManager extends GameManager {
     public static final String REMOVE_TAG = "remove";
@@ -57,7 +56,18 @@ public class PepseGameManager extends GameManager {
         createFlora(terrain);
         gameObjects().layers().shouldLayersCollide(Layer.DEFAULT, Layer.STATIC_OBJECTS, true);
 
+        // create cloud
+        createCloud();
     }
+
+    private void createCloud() {
+        Cloud cloud = new Cloud(windowDimensions);
+        List<CloudPiece> blocks = cloud.getBlocks();
+        for (CloudPiece block: blocks) {
+            gameObjects().addGameObject(block,Layer.BACKGROUND);
+        }
+    }
+
 
     private void createFlora(Terrain terrain) {
         Flora flora = new Flora(terrain);
