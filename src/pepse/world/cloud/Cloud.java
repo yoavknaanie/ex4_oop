@@ -1,6 +1,7 @@
 package pepse.world.cloud;
 
 import danogl.GameObject;
+import danogl.components.CoordinateSpace;
 import danogl.components.Transition;
 import danogl.util.Vector2;
 import pepse.world.Block;

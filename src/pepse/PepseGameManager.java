@@ -8,6 +8,7 @@ import danogl.gui.ImageReader;
 import danogl.gui.SoundReader;
 import danogl.gui.UserInputListener;
 import danogl.gui.WindowController;
+import danogl.gui.rendering.Camera;
 import danogl.util.Vector2;
 import pepse.world.*;
 import pepse.world.cloud.Cloud;
@@ -27,16 +28,19 @@ public class PepseGameManager extends GameManager {
     private static final int seed = 42;
     public static final int CYCLE_LENGTH = 4;
     private Terrain terrain;
+    private Flora flora;
     private static final Vector2 ENERGY_POSITION =  new Vector2(10, 10);
     private Avatar avatar;
     private static final int CLOUD_LAYER = Layer.BACKGROUND + 1;
+    private WindowController windowController;
+    private float[] borders;
 
     @Override
     public void initializeGame(ImageReader imageReader, SoundReader soundReader,
                                UserInputListener inputListener, WindowController windowController) {
         super.initializeGame(imageReader, soundReader, inputListener, windowController);
         this.windowDimensions = windowController.getWindowDimensions();
-
+        this.windowController = windowController;
         createSky();
 
         // Create Terrain:
@@ -53,7 +57,8 @@ public class PepseGameManager extends GameManager {
         // create Halo
         gameObjects().addGameObject(SunHalo.create(sun), Layer.BACKGROUND);
 
-        createAvatar(inputListener, imageReader);
+        //create avatar
+        createAvatar(inputListener, imageReader, windowController);
 
         // create flora
         createFlora(terrain);
@@ -61,7 +66,10 @@ public class PepseGameManager extends GameManager {
 
         // create cloud
         createCloud();
+
+        this.borders = new float[]{0, windowDimensions.x()};
     }
+
 
     private void createCloud() {
         Cloud cloud = new Cloud(windowDimensions, this::createDrop, avatar::isAvatarJumping);
@@ -73,7 +81,7 @@ public class PepseGameManager extends GameManager {
 
 
     private void createFlora(Terrain terrain) {
-        Flora flora = new Flora(terrain);
+        this.flora = new Flora(terrain);
         // todo when implamant infinite world, minX shouldnt be 0:
         List<Tree> trees = flora.createInRange(0, (int) windowDimensions.x(), terrain);
         for (Tree tree: trees) {
@@ -89,15 +97,17 @@ public class PepseGameManager extends GameManager {
         }
     }
 
-    private void createTerrain() {
+    private Terrain createTerrain() {
         terrain = new Terrain(windowDimensions, seed);
         List<Block> blocks = terrain.createInRange(0 , (int) windowDimensions.x());
         for (Block block: blocks){
             gameObjects().addGameObject(block, Layer.STATIC_OBJECTS);
         }
+        return terrain;
     }
 
-    private void createAvatar(UserInputListener inputListener, ImageReader imageReader) {
+    private void createAvatar(UserInputListener inputListener, ImageReader imageReader,
+                           WindowController windowController) {
         float avatarFloorY = terrain.getGroundHeightAtX0();
         Vector2 avatarFloorPos = new Vector2(0, avatarFloorY);
         avatar = new Avatar(avatarFloorPos,  inputListener, imageReader);
@@ -106,6 +116,11 @@ public class PepseGameManager extends GameManager {
         EnergyRenderer energyDisplay = new EnergyRenderer(ENERGY_POSITION,
                 avatar::getEnergyLevel);
         gameObjects().addGameObject(energyDisplay, Layer.UI);
+
+        setCamera(new Camera(avatar,
+                Vector2.UP.mult(125),
+                windowController.getWindowDimensions(),
+                windowController.getWindowDimensions()));
     }
 
     private void createSky() {
@@ -122,6 +137,42 @@ public class PepseGameManager extends GameManager {
                 false,
                 () -> gameObjects().removeGameObject(gameObject)
         );
+    }
+
+    private float[] getNewBoarders() {
+        return new float[]{
+                // todo maybe add some extra margins:
+                this.avatar.getCenter().x() - windowDimensions.x()/2,
+                this.avatar.getCenter().x() + windowDimensions.x()/2,
+        };
+    }
+
+    @Override
+    public void update(float deltaTime) {
+        super.update(deltaTime);
+        float[] newBorders = getNewBoarders();
+        int oldLeft = (int) borders[0];
+        int oldRight = (int) borders[1];
+        int newLeft = (int) newBorders[0];
+        int newRight = (int) newBorders[1];
+
+        if (newRight > oldRight) { // walk right
+            System.out.println("oldLeft = " + oldLeft);
+            System.out.println("oldRight = " + oldRight);
+            System.out.println("newLeft = " + newLeft);
+            System.out.println("newRight = " + newRight);
+            terrain.createInRange(oldRight, newRight);
+            this.borders = newBorders;
+            System.out.println();
+//        } else if (newBorders[1] < borders[1]) { // walk left
+//            System.out.println("oldLeft = " + oldLeft);
+//            System.out.println("oldRight = " + oldRight);
+//            System.out.println("newLeft = " + newLeft);
+//            System.out.println("newRight = " + newRight);
+////            terrain.createInRange((int)borders[1], (int)newBorders[1]);
+//            this.borders = newBorders;
+//            System.out.println();
+        }
     }
 
     public static void main(String[] args) {

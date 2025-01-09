@@ -1,6 +1,7 @@
 package pepse.world.daynight;
 
 import danogl.GameObject;
+import danogl.components.CoordinateSpace;
 import danogl.gui.rendering.OvalRenderable;
 import danogl.util.Vector2;
 import java.awt.*;
@@ -15,6 +16,7 @@ public class SunHalo {
         Vector2 haloDimensions = sun.getDimensions().mult(SUN_HALO_RATIO);
 
         GameObject sunHalo = new GameObject(Vector2.ZERO, haloDimensions, haloRenderable);
+        sunHalo.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
         sunHalo.setCenter(sun.getCenter());
         sun.setTag(HALO_TAG);
 
