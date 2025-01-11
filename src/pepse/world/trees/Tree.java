@@ -25,6 +25,7 @@ public class Tree extends GameObject {
         generateRandomHeight();
         this.setTopLeftCorner(groundHeight.subtract(new Vector2(0,treeTrunkHeight/2)));
         this.setDimensions(new Vector2(Block.SIZE, treeTrunkHeight));
+//        this.setTopLeftCorner(groundHeight.subtract(new Vector2(0,treeTrunkHeight/2)));
         physics().preventIntersectionsFromDirection(Vector2.ZERO);
         physics().setMass(GameObjectPhysics.IMMOVABLE_MASS);
     }

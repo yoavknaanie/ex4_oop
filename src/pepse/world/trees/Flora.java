@@ -9,6 +9,9 @@ import pepse.world.Terrain;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 
 public class Flora {
     private static final float LEAF_CREATION_PROBABILITY = 0.7f;
@@ -19,22 +22,26 @@ public class Flora {
     private static final float MIN_ANGLE = -15f;
     private static final float MAX_ANGLE = 15f;
     private static final float SHRINK_AMOUNT = 15f;
-
-    private final Terrain terrain;
     private static final Random random = new Random();
+    private final Function<Float,Float> groundHeightGetter;
     private List<Tree> trees = new ArrayList<Tree>();
 
-    public Flora(Terrain terrain){
-        this.terrain = terrain;
+    public Flora(Function<Float,Float> getGroundHeight){
+        groundHeightGetter = getGroundHeight;
     }
 
     //    todo think about the return val:
-    public List<Tree> createInRange(int minX, int maxX, Terrain terrain) {
+    public List<Tree> createInRange(int minX, int maxX) {
 //        List<Tree> trees = new ArrayList<Tree>();
         for (int x = minX+Block.SIZE/2; x <= maxX; x+= Block.SIZE) {
+//        for (int x = minX; x <= maxX; x+= Block.SIZE) {
             // Create a tree at each X-coordinate within the range
             if (plantOrNotToPlant()){
-                int groundHeight = ((int) terrain.getGroundHeightAtX0())+ 1;
+                float plantLocation = (float) x;
+                float groundHeightFloat = groundHeightGetter.apply(plantLocation - (Block.SIZE/2));
+//                float groundHeightFloat = groundHeightGetter.apply(plantLocation);
+                int groundHeight = ((int) groundHeightFloat) + 1;
+//                int groundHeight = ((int) groundHeightFloat) + Block.SIZE + 1;
                 Tree tree = new Tree(new Vector2(x, groundHeight));
                 trees.add(tree);
             }

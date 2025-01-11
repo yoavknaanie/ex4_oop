@@ -108,7 +108,7 @@ public class Avatar extends GameObject {
         transform().setVelocityX(xVel);
     }
 
-    public boolean isAvatarJumping(){
+    public Boolean isAvatarJumping(){
         return isJump;
     }
 

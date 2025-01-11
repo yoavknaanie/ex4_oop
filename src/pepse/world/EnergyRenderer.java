@@ -17,7 +17,8 @@ public class EnergyRenderer extends GameObject {
         this.energySupplier = energySupplier;
         this.textRenderable = new TextRenderable(String.format("%d", energySupplier.get()));
         this.renderer().setRenderable(textRenderable);
-        this.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
+//        this.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
+        setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
     }
 
     @Override

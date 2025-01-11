@@ -23,7 +23,11 @@ import pepse.world.trees.Tree;
 import java.util.List;
 
 public class PepseGameManager extends GameManager {
-    public static final String REMOVE_TAG = "remove";
+    private static final int[] RECYCLED_LAYERS = new int[]{Layer.STATIC_OBJECTS, Layer.DEFAULT};
+    private static final int CLOUD_LAYER = Layer.BACKGROUND + 1;
+    private static final int LEAVES_LAYER = Layer.STATIC_OBJECTS + 1;
+
+
     private Vector2 windowDimensions;
     private static final int seed = 42;
     public static final int CYCLE_LENGTH = 4;
@@ -31,7 +35,6 @@ public class PepseGameManager extends GameManager {
     private Flora flora;
     private static final Vector2 ENERGY_POSITION =  new Vector2(10, 10);
     private Avatar avatar;
-    private static final int CLOUD_LAYER = Layer.BACKGROUND + 1;
     private WindowController windowController;
     private float[] borders;
 
@@ -81,9 +84,9 @@ public class PepseGameManager extends GameManager {
 
 
     private void createFlora(Terrain terrain) {
-        this.flora = new Flora(terrain);
+        this.flora = new Flora(terrain::groundHeightAt);
         // todo when implamant infinite world, minX shouldnt be 0:
-        List<Tree> trees = flora.createInRange(0, (int) windowDimensions.x(), terrain);
+        List<Tree> trees = flora.createInRange(0, (int) windowDimensions.x());
         for (Tree tree: trees) {
             gameObjects().addGameObject(tree, Layer.STATIC_OBJECTS);
             List<Leaf> leaves = flora.createLeaves(tree);
@@ -97,13 +100,19 @@ public class PepseGameManager extends GameManager {
         }
     }
 
-    private Terrain createTerrain() {
+    private void createTerrain() {
         terrain = new Terrain(windowDimensions, seed);
         List<Block> blocks = terrain.createInRange(0 , (int) windowDimensions.x());
         for (Block block: blocks){
             gameObjects().addGameObject(block, Layer.STATIC_OBJECTS);
         }
-        return terrain;
+    }
+
+    private void createTerrainInRange(int minX, int maxX) {
+        List<Block> blocks = terrain.createInRange(minX , maxX);
+        for (Block block: blocks){
+            gameObjects().addGameObject(block, Layer.STATIC_OBJECTS);
+        }
     }
 
     private void createAvatar(UserInputListener inputListener, ImageReader imageReader,
@@ -142,8 +151,8 @@ public class PepseGameManager extends GameManager {
     private float[] getNewBoarders() {
         return new float[]{
                 // todo maybe add some extra margins:
-                this.avatar.getCenter().x() - windowDimensions.x()/2,
-                this.avatar.getCenter().x() + windowDimensions.x()/2,
+                (this.avatar.getCenter().x() - windowDimensions.x()/2),
+                (this.avatar.getCenter().x() + windowDimensions.x()/2 ),
         };
     }
 
@@ -157,21 +166,38 @@ public class PepseGameManager extends GameManager {
         int newRight = (int) newBorders[1];
 
         if (newRight > oldRight) { // walk right
-            System.out.println("oldLeft = " + oldLeft);
-            System.out.println("oldRight = " + oldRight);
-            System.out.println("newLeft = " + newLeft);
-            System.out.println("newRight = " + newRight);
-            terrain.createInRange(oldRight, newRight);
-            this.borders = newBorders;
-            System.out.println();
-//        } else if (newBorders[1] < borders[1]) { // walk left
 //            System.out.println("oldLeft = " + oldLeft);
 //            System.out.println("oldRight = " + oldRight);
 //            System.out.println("newLeft = " + newLeft);
 //            System.out.println("newRight = " + newRight);
-////            terrain.createInRange((int)borders[1], (int)newBorders[1]);
-//            this.borders = newBorders;
-//            System.out.println();
+            createTerrainInRange(oldRight, newRight + Block.SIZE * 10);
+            this.borders = newBorders;
+//                System.out.println("created right terrein");
+//            removeOffScreen(oldLeft - Block.SIZE, newLeft);
+        }
+        if (newLeft < oldLeft) { // walk left
+//            System.out.println("oldLeft = " + oldLeft);
+//            System.out.println("oldRight = " + oldRight);
+//            System.out.println("newLeft = " + newLeft);
+//            System.out.println("newRight = " + newRight);
+            createTerrainInRange(newLeft - Block.SIZE * 10, oldLeft);
+            this.borders = newBorders;
+//                System.out.println("created left terrein");
+//            removeOffScreen(newRight + Block.SIZE, oldRight);
+        }
+    }
+
+    private void removeOffScreen(float left, float right) {
+
+        for (GameObject object : this.gameObjects()) {
+            if (object.getCenter().x() > right || object.getCenter().x() < left ) {
+                for (int layer : RECYCLED_LAYERS) {
+                    this.gameObjects().removeGameObject(object, layer);
+                }
+                if (object.getTag().equals("leaf")){
+                    this.gameObjects().removeGameObject(object, Layer.BACKGROUND);
+                }
+            }
         }
     }
 

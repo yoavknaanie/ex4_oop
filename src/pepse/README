@@ -1,0 +1,42 @@
+yoav_kn,ittai.ayalon
+211723937,318229937
+
+1.
+In the package trees we created the following classes:
+Its holds an instance of terrein for positioning the trees on the ground.
+Class Tree - extends game object, represents tree trunk in diffrent shades of brown which blocks the avatar.
+Class Leaf - extends game object, represents a leaf in diffrent shades of green.
+Class Fruit - extends game object, represents a fruit in diffrent shades of yellow. using callbacks it
+By sending callbacks to ScheduledTask (which updates the fruit condition and rendering) it disapears for a
+day night period when it collides with the avatar.
+
+class Flora - responsible for creating flora objects such as trees, leaves and fruits.
+It handles their their positioning and return each type of them as a separate list the Pepse game manager,
+allowing them to be added to the game.
+It has a class field of a callback function: Function<Float,Float> getGroundHeight,
+which determines the ground height at each x-coordinate, ensuring trees are planted at the correct ground
+height.
+Instead of holding an instance of Terrain class, the use of a callback function from Terrain,
+applies the encapsulation principle.
+
+Additionally, the class manages the repetitive movement of leaves.
+To maintain consistent randomization across the game,
+it receives a Random class instance, ensuring reproducible randomness for tree planting,
+as well as leaf and fruit generation.
+
+Clouds creation - We added a package named cloud contains:
+CloudPiece class - extends game object and repreasents a cloud block in a shade of white. It also
+able to create another game object of a rainDrop when the avatar jumps.
+It checks whether the avatar is jumping using a callback BooleanSupplier avatarJumpingChecker as an
+class instance.
+This way, and by overriding the GameObject method update(), we can respond to the avatar without breaking
+encapsulation.
+The use of update() is actually a use of built in Observer design pattern - all the game objects responds to
+the game changes (as well as other objects such as the avatar).
+The creation of the rainDrop by the cloud piece also done by a callback which allowed the CloudePiece to add
+objects to the game fo a limited time without an instance of the game manager or an instance of the
+gameObject data structure - encapsulation.
+
+Cloud class - This class managed the creation of the cloudBlocks and their position in the game.
+Such as Flora class it return a list of CloudePices to PepseGameManager so it will add them to the game.
+It handels their movement across the screen by using a Transition function.

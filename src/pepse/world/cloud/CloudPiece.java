@@ -29,7 +29,7 @@ public class CloudPiece extends GameObject {
         super(location, dimensions,
                 new RectangleRenderable(ColorSupplier.approximateMonoColor(BASE_CLOUD_COLOR)));
         this.addObject = addObject;
-        setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES); //todo when infinite world
+        this.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES); //todo when infinite world
         this.avatarJumpingChecker = avatarJumpingChecker;
     }
 
@@ -45,6 +45,7 @@ public class CloudPiece extends GameObject {
                 dropingRain = true;
                 GameObject drop = new GameObject(this.getTopLeftCorner(), DROP_DIM,
                         new RectangleRenderable(BASE_DROP_COLOR));
+                drop.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES); // todo verify
                 addObject.accept(drop);
                 new Transition<Float>(
                         drop,
