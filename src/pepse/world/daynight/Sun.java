@@ -17,12 +17,14 @@ public class Sun {
     public static final float DEGREES_IN_CYCLE = 360;
     private static final float SUN_SIZE = 200;
     private static final Vector2 SUN_DIMENSIONS = new Vector2(SUN_SIZE, SUN_SIZE);
+    public static final float HALF = 0.5f;
+    public static final float ZERO = 0f;
 
     public static GameObject create(Vector2 windowDimensions,
                                     float cycleLength) {
         OvalRenderable ovalRenderable = new OvalRenderable(Color.yellow);
-        float midXAxis = (float) 0.5 * windowDimensions.x();
-        float midSky = (float) (windowDimensions.y() * GROUND_HEIGHT_AT_X0 / 2);
+        float midXAxis = HALF * windowDimensions.x();
+        float midSky = windowDimensions.y() * GROUND_HEIGHT_AT_X0 * HALF;
         Vector2 initialSunCenter = new Vector2(midXAxis, midSky);
 
         GameObject sun = new GameObject(
@@ -37,7 +39,7 @@ public class Sun {
         new Transition<Float>(sun,
                 (Float angle) -> sun.setCenter(
                         initialSunCenter.subtract(cycleCenter).rotated(angle).add(cycleCenter)),
-                0f,
+                ZERO,
                 DEGREES_IN_CYCLE,
                 Transition.LINEAR_INTERPOLATOR_FLOAT,
                 cycleLength,

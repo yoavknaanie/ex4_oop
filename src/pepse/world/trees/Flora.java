@@ -23,6 +23,12 @@ public class Flora {
     private static final float MAX_ANGLE = 15f;
     private static final float SHRINK_AMOUNT = 15f;
     private static final Random random = new Random();
+    public static final float HALF = 0.5f;
+    public static final int ONE = 1;
+    public static final int FRUIT_LEN_FROM_GROUND = (2 * Block.SIZE);
+    public static final int FRUIT_LEN_FROM_TRUNK = 2 * Block.SIZE;
+    public static final int HALF_TRUNK_WIDTH = Block.SIZE / 2;
+    public static final int SEED = 42;
     private final Function<Float,Float> groundHeightGetter;
     private List<Tree> trees = new ArrayList<Tree>();
 
@@ -36,15 +42,15 @@ public class Flora {
 //        for (int x = minX+Block.SIZE/2; x <= maxX; x+= Block.SIZE) {
 //        float remainderByBlockSize = (maxX - minX)%Block.SIZE;
         minX = minX - (minX % Block.SIZE);
-        for (int x = minX + Block.SIZE/2; x <= maxX; x+= Block.SIZE) {
+        for (int x = minX + (int)(Block.SIZE * HALF); x <= maxX; x+= Block.SIZE) {
 //        for (float x = minX + remainderByBlockSize; x <= maxX; x+= Block.SIZE) {
             // Create a tree at each X-coordinate within the range
 //            if (plantOrNotToPlant()){
             if (randomBySeed(x).nextFloat() > TREE_PLANT_PROBABILITY_THRESHOLD){
                 float plantLocation = (float) x;
 //                float groundHeightFloat = groundHeightGetter.apply(plantLocation);
-                float groundHeightFloat = groundHeightGetter.apply(plantLocation - (Block.SIZE/2));
-                int groundHeight = ((int) groundHeightFloat) + 1;
+                float groundHeightFloat = groundHeightGetter.apply(plantLocation - (Block.SIZE * HALF));
+                int groundHeight = ((int) groundHeightFloat) + ONE;
 //                int groundHeight = ((int) groundHeightFloat) + Block.SIZE + 1;
                 Tree tree = new Tree(new Vector2(x, groundHeight));
                 trees.add(tree);
@@ -56,15 +62,15 @@ public class Flora {
     public List<Fruit> createFruits(Tree tree){
         List<Fruit> fruits = new ArrayList<Fruit>();
         float treeHeight = tree.getTreeTrunkHeight();
-        float treeWidth = Block.SIZE;
+//        float treeWidth = Block.SIZE;
         // bounds for fruit creation todo i think fruits shouldnt be on trunk...
         float minY = tree.getTopLeftCorner().y() - (treeHeight); // top of tree
-        float maxY = tree.getTopLeftCorner().y() + treeHeight - (2*Block.SIZE);
-        float minX = tree.getTopLeftCorner().x() - 2 * treeWidth;
-        float maxX = tree.getTopLeftCorner().x() + 2 * treeWidth;
+        float maxY = tree.getTopLeftCorner().y() + treeHeight - FRUIT_LEN_FROM_GROUND;
+        float minX = tree.getTopLeftCorner().x() - FRUIT_LEN_FROM_TRUNK;
+        float maxX = tree.getTopLeftCorner().x() + FRUIT_LEN_FROM_TRUNK;
         // Trunk bounds
-        float trunkMinX = tree.getTopLeftCorner().x() - treeWidth / 2; // Centered trunk width
-        float trunkMaxX = tree.getTopLeftCorner().x() + treeWidth / 2;
+        float trunkMinX = tree.getTopLeftCorner().x() - HALF_TRUNK_WIDTH; // Centered trunk width
+        float trunkMaxX = tree.getTopLeftCorner().x() + HALF_TRUNK_WIDTH;
 
         // add fruits:
         for (float y = minY; y <= maxY; y += Block.SIZE) {
@@ -86,12 +92,12 @@ public class Flora {
     public List<Leaf> createLeaves(Tree tree){
         List<Leaf> leaves = new ArrayList<Leaf>();
         float treeHeight = tree.getTreeTrunkHeight();
-        float treeWidth = Block.SIZE;
+//        float treeWidth = Block.SIZE;
         // bounds for leaf creation
         float minY = tree.getTopLeftCorner().y() - (treeHeight); // top of tree
-        float maxY = tree.getTopLeftCorner().y() + treeHeight - (2*Block.SIZE);
-        float minX = tree.getTopLeftCorner().x() - 2 * treeWidth;
-        float maxX = tree.getTopLeftCorner().x() + 2 * treeWidth;
+        float maxY = tree.getTopLeftCorner().y() + treeHeight - (FRUIT_LEN_FROM_GROUND);
+        float minX = tree.getTopLeftCorner().x() - FRUIT_LEN_FROM_TRUNK;
+        float maxX = tree.getTopLeftCorner().x() + FRUIT_LEN_FROM_TRUNK;
         // add leaves:
         for (float y = minY; y <= maxY; y += Block.SIZE) {
             for (float x = minX; x <= maxX; x += Block.SIZE) {
@@ -165,6 +171,6 @@ public class Flora {
 //    }
 
     private Random randomBySeed(float x) {
-        return new Random(Objects.hash(x, 42));
+        return new Random(Objects.hash(x, SEED));
     }
 }

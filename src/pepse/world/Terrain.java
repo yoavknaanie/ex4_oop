@@ -12,21 +12,22 @@ import java.util.List;
 public class Terrain {
     private static final Color BASE_GROUND_COLOR = new Color(212, 123,74);
     public static final String GROUND_TAG = "ground";
+    public static final float WINDOW_PROPORTIONS = ((float) 2 / 3);
+    public static final int NOISE_FACTOR = 10 * Block.SIZE;
     private final Vector2 windowDimensions;
-//    private final int seed;
     public final float groundHeightAtX0; //todo should be static?
     private static final int TERRAIN_DEPTH = 20;
     private final NoiseGenerator noiseGenerator;
 
     public Terrain(Vector2 windowDimensions, int seed){
-        groundHeightAtX0 =  ((float)2/3) * windowDimensions.y();
+        groundHeightAtX0 =  WINDOW_PROPORTIONS * windowDimensions.y();
         this.windowDimensions = windowDimensions;
         this.noiseGenerator = new NoiseGenerator(seed, (int)groundHeightAtX0);
 //        this.seed = seed;
     }
 
     public float groundHeightAt(float x) {
-        float noise = (float) noiseGenerator.noise(x, 10*Block.SIZE);
+        float noise = (float) noiseGenerator.noise(x, NOISE_FACTOR);
         return (float) Math.floor((groundHeightAtX0 + noise)/Block.SIZE) * Block.SIZE;
 //        new NoiseGenerator(seed, (int)groundHeightAtX0);
 //        return groundHeightAtX0;

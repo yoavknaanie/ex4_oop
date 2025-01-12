@@ -11,6 +11,8 @@ import java.awt.*;
 public class Night {
     public static final String NIGHT_TAG = "night_tag";
     private static final Float MIDNIGHT_OPACITY = 0.5f;
+    private static final float ZERO = 0f;
+    private static final float HALF = 0.5f;
 
     public static GameObject create(Vector2 windowDimensions, float cycleLength){
         GameObject night = new GameObject(Vector2.ZERO, windowDimensions, new RectangleRenderable(Color.BLACK));
@@ -19,10 +21,10 @@ public class Night {
 
         new Transition<Float>(night,
                 night.renderer()::setOpaqueness,
-                0f,
+                ZERO,
                 MIDNIGHT_OPACITY,
                 Transition.CUBIC_INTERPOLATOR_FLOAT,
-                (float)0.5*cycleLength,
+                HALF * cycleLength,
                 Transition.TransitionType.TRANSITION_BACK_AND_FORTH,
                 null);
 

@@ -3,15 +3,10 @@ package pepse.world;
 import danogl.GameObject;
 import danogl.collisions.Collision;
 import danogl.gui.ImageReader;
-import danogl.gui.Sound;
 import danogl.gui.UserInputListener;
 import danogl.gui.rendering.AnimationRenderable;
-import danogl.gui.rendering.OvalRenderable;
-import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
-import pepse.world.trees.Fruit;
 
-import java.awt.*;
 import java.awt.event.KeyEvent;
 
 public class Avatar extends GameObject {
@@ -25,6 +20,10 @@ public class Avatar extends GameObject {
     private static final float SIDES_MOVES_ENERGY_INTAKE = 0.5f;
     private static final float JUMPING_ENERGY_INTAKE = 10;
     private static final double PAUSE_BETWEEN_ANIMAITONS = 0.3;
+    public static final int ZERO = 0;
+    public static final int AVATAR_ACCELERATION = 400;
+    public static final int ONE = 1;
+    public static final String BLOCK_TAG = "block";
     //    private static final float GRAVITY = 650;
 
     // fields
@@ -45,7 +44,7 @@ public class Avatar extends GameObject {
             "assets/run_2.png", "assets/run_3.png", "assets/run_4.png", "assets/run_5.png"};
 
     public Avatar(Vector2 pos, UserInputListener inputListener, ImageReader imageReader) {
-        super(pos.subtract(new Vector2(0, avatarDimensions.y())), avatarDimensions,
+        super(pos.subtract(new Vector2(ZERO, avatarDimensions.y())), avatarDimensions,
                 imageReader.readImage(AVTAR_IMG_PATH, true));
         this.inputListener = inputListener;
         this.imageReader = imageReader;
@@ -53,7 +52,7 @@ public class Avatar extends GameObject {
         // prevents avatar from going through ground
         this.physics().preventIntersectionsFromDirection(Vector2.ZERO);
         // acceleration of Y axis, always pull the character down.
-        this.transform().setAccelerationY(400);
+        this.transform().setAccelerationY(AVATAR_ACCELERATION);
 //        todo
 //        animationRenderable = new AnimationRenderable[NUM_OF_ANIMATION_SEQUENCES];
 //        formAnimations();
@@ -69,9 +68,9 @@ public class Avatar extends GameObject {
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
-        float xVel = 0;
+        float xVel = ZERO;
 
-        if(inputListener.isKeyPressed(KeyEvent.VK_SPACE) && getVelocity().y() == 0){
+        if(inputListener.isKeyPressed(KeyEvent.VK_SPACE) && getVelocity().y() == ZERO){
             if(energyLevel >= JUMPING_ENERGY_INTAKE) {
                 transform().setVelocityY(VELOCITY_Y);
                 increaceEnergy(-JUMPING_ENERGY_INTAKE);
@@ -91,17 +90,17 @@ public class Avatar extends GameObject {
             renderer().setIsFlippedHorizontally(false);
         }
         // if there is no movement sideways
-        if(xVel == 0){
-            if (getVelocity().y() == 0){
-                increaceEnergy(1);
+        if(xVel == ZERO){
+            if (getVelocity().y() == ZERO){
+                increaceEnergy(ONE);
                 renderer().setRenderable(idleAnimaiton);
             }
         }else if (energyLevel > SIDES_MOVES_ENERGY_INTAKE){
             increaceEnergy(-SIDES_MOVES_ENERGY_INTAKE);
         }else{
-            xVel = 0;
+            xVel = ZERO;
         }
-        if (getVelocity().y() == 0){
+        if (getVelocity().y() == ZERO){
             isJump = false;
         }
         //transform
@@ -116,8 +115,8 @@ public class Avatar extends GameObject {
         energyLevel+=val;
         if (energyLevel > MAX_ENERGY){
             energyLevel = MAX_ENERGY;
-        } else if (energyLevel < 0) {
-            energyLevel = 0;
+        } else if (energyLevel < ZERO) {
+            energyLevel = ZERO;
         }
     }
 
@@ -128,8 +127,8 @@ public class Avatar extends GameObject {
     @Override
     public void onCollisionEnter(GameObject other, Collision collision) {
         super.onCollisionEnter(other, collision);
-        if (other.getTag().equals("block")) {
-            this.transform().setVelocityY(0);
+        if (other.getTag().equals(BLOCK_TAG)) {
+            this.transform().setVelocityY(ZERO);
         }
     }
 }
