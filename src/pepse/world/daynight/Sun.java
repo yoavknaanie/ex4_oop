@@ -10,7 +10,10 @@ import danogl.util.Vector2;
 import pepse.world.Terrain;
 
 import java.awt.*;
-
+/**
+ * The Sun class represents the sun in the game world.
+ * It simulates the movement of the sun in a circular trajectory, creating a day-night cycle.
+ */
 public class Sun {
     public static final String SUN_TAG = "sun";
     private static final float GROUND_HEIGHT_AT_X0 = 2 / 3f;
@@ -19,7 +22,13 @@ public class Sun {
     private static final Vector2 SUN_DIMENSIONS = new Vector2(SUN_SIZE, SUN_SIZE);
     public static final float HALF = 0.5f;
     public static final float ZERO = 0f;
-
+    /**
+     * Creates and returns a GameObject representing the sun.
+     *
+     * @param windowDimensions The dimensions of the game window.
+     * @param cycleLength The duration of the full day-night cycle.
+     * @return A GameObject representing the sun.
+     */
     public static GameObject create(Vector2 windowDimensions,
                                     float cycleLength) {
         OvalRenderable ovalRenderable = new OvalRenderable(Color.yellow);

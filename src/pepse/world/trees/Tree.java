@@ -12,9 +12,11 @@ import java.awt.*;
 import java.util.Objects;
 import java.util.Random;
 
-//todo check with friend what suppused to be done with that
+/**
+ * The Tree class represents a tree object in the game world, with a trunk that has a randomized height.
+ * It is rendered as a rectangle with a color based on a base color, and it is assigned a tag ("tree") for identification.
+ */
 public class Tree extends GameObject {
-    //todo make the color a varient of these:
     private static final Color BASE_TREE_TRUNK_COLOR = new Color(100, 50, 20);
     public static final int ZERO = 0;
     public static final int COLOR_DELTA = 25;
@@ -25,6 +27,12 @@ public class Tree extends GameObject {
     private int treeTrunkHeight = 0;
     public static final String TREE_TAG = "tree";
 
+    /**
+     * Constructs a new Tree object.
+     *
+     * @param groundHeight The position in the game world where the tree's trunk will be placed.
+     *                     This value is used to set the tree's position and calculate its height.
+     */
     public Tree(Vector2 groundHeight) {
         super(groundHeight, new Vector2(ZERO, ZERO),
                 new RectangleRenderable(ColorSupplier.approximateColor(BASE_TREE_TRUNK_COLOR,
@@ -43,7 +51,11 @@ public class Tree extends GameObject {
         Random random = new Random(Objects.hash(x, SEED));
         treeTrunkHeight = TREE_BASE_HEIGHT + (int)(random.nextFloat() * TREE_MAX_HEIGHT_ADD); // Random height in range [100, 150]
     }
-
+    /**
+     * Returns the height of the tree trunk.
+     *
+     * @return The height of the tree trunk.
+     */
     public int getTreeTrunkHeight() {
         return treeTrunkHeight;
     }

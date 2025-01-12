@@ -58,7 +58,7 @@ public class CloudPiece extends GameObject {
         super(location, dimensions,
                 new RectangleRenderable(ColorSupplier.approximateMonoColor(BASE_CLOUD_COLOR)));
         this.addObject = addObject;
-        this.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES); //todo when infinite world
+//        this.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
         this.avatarJumpingChecker = avatarJumpingChecker;
     }
     /**

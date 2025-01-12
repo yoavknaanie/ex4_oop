@@ -12,7 +12,10 @@ import pepse.world.Avatar;
 import pepse.world.Block;
 
 import java.awt.*;
-
+/**
+ * Represents a fruit in the game. Fruits provide an energy boost to the avatar upon collision
+ * and periodically regenerate after being collected.
+ */
 public class Fruit extends GameObject{
     private static  final Vector2 dimensions = new Vector2(Block.SIZE, Block.SIZE);
     private static final Color BASE_FRUIT_COLOR = new Color (255, 255, 0);
@@ -21,7 +24,11 @@ public class Fruit extends GameObject{
     public static final int ZERO = 0;
     public static final int COLOR_DELTA = 50;
     private boolean isGone = false;
-
+    /**
+     * Constructs a fruit object at a specified location.
+     *
+     * @param location The position of the fruit in the game world.
+     */
     public Fruit(Vector2 location) {
         super(location, dimensions,
                 new OvalRenderable(ColorSupplier.approximateColor(BASE_FRUIT_COLOR, COLOR_DELTA)));

@@ -42,6 +42,8 @@ public class Flora {
 //        for (int x = minX+Block.SIZE/2; x <= maxX; x+= Block.SIZE) {
 //        float remainderByBlockSize = (maxX - minX)%Block.SIZE;
         minX = minX - (minX % Block.SIZE);
+//        maxX = maxX - (maxX % Block.SIZE);
+
         for (int x = minX + (int)(Block.SIZE * HALF); x <= maxX; x+= Block.SIZE) {
 //        for (float x = minX + remainderByBlockSize; x <= maxX; x+= Block.SIZE) {
             // Create a tree at each X-coordinate within the range
@@ -98,9 +100,17 @@ public class Flora {
         float maxY = tree.getTopLeftCorner().y() + treeHeight - (FRUIT_LEN_FROM_GROUND);
         float minX = tree.getTopLeftCorner().x() - FRUIT_LEN_FROM_TRUNK;
         float maxX = tree.getTopLeftCorner().x() + FRUIT_LEN_FROM_TRUNK;
+        // Trunk bounds
+//        float trunkMinX = tree.getTopLeftCorner().x() - HALF_TRUNK_WIDTH; // Centered trunk width
+//        float trunkMaxX = tree.getTopLeftCorner().x() + HALF_TRUNK_WIDTH;
+        float trunkMinX = tree.getTopLeftCorner().x(); // Centered trunk width
+        float trunkMaxX = tree.getTopLeftCorner().x() + Block.SIZE;
         // add leaves:
         for (float y = minY; y <= maxY; y += Block.SIZE) {
             for (float x = minX; x <= maxX; x += Block.SIZE) {
+                if (x >= trunkMinX && x <= trunkMaxX && y >= tree.getTopLeftCorner().y()) {
+                    continue; // Skip positions on the trunk
+                }
 //                if (random.nextFloat() <= LEAF_CREATION_PROBABILITY) {
 //                if (randomBySeed(x).nextFloat() <= LEAF_CREATION_PROBABILITY) {
                 if (randomBySeed(x*y).nextFloat() <= LEAF_CREATION_PROBABILITY) {

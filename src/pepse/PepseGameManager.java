@@ -22,10 +22,13 @@ import pepse.world.trees.Leaf;
 import pepse.world.trees.Tree;
 import java.util.List;
 
+/**
+ * The PepseGameManager class is responsible for managing the game world, initializing objects,
+ * and handling updates. It sets up the terrain, avatar, flora, clouds, and other dynamic elements.
+ */
 public class PepseGameManager extends GameManager {
     private static final int[] RECYCLED_LAYERS = new int[]{Layer.STATIC_OBJECTS, Layer.DEFAULT};
     private static final int CLOUD_LAYER = Layer.BACKGROUND + 1;
-    private static final int LEAVES_LAYER = Layer.STATIC_OBJECTS + 1;
     public static final int LEFT_SCREEN_CORNER_START = 0;
     public static final int ZERO = 0;
     public static final int DROP_WAIT_TIME = 3;
@@ -35,7 +38,6 @@ public class PepseGameManager extends GameManager {
     private static final int RIGHT_BORDER_IDX = 1;
     private static final int UPDATE_BORDER_FACTOR = 4;
     private static final String LEAF_TAG = "leaf";
-
 
     private Vector2 windowDimensions;
     private static final int seed = 42;
@@ -47,6 +49,15 @@ public class PepseGameManager extends GameManager {
     private WindowController windowController;
     private float[] borders;
 
+
+    /**
+     * Initializes the game by setting up the game world, terrain, flora, avatar, and other objects.
+     *
+     * @param imageReader The image reader for loading images.
+     * @param soundReader The sound reader for loading sounds.
+     * @param inputListener The input listener for managing user input.
+     * @param windowController The window controller for managing the window.
+     */
     @Override
     public void initializeGame(ImageReader imageReader, SoundReader soundReader,
                                UserInputListener inputListener, WindowController windowController) {
@@ -60,11 +71,11 @@ public class PepseGameManager extends GameManager {
 
         // create night:
         GameObject night = Night.create(windowDimensions, CYCLE_LENGTH);
-        gameObjects().addGameObject(night, Layer.FOREGROUND); //todo valid FOREGROUND
+        gameObjects().addGameObject(night, Layer.FOREGROUND);
 
         // create sun:
         GameObject sun = Sun.create(windowDimensions, CYCLE_LENGTH);
-        gameObjects().addGameObject(sun, Layer.BACKGROUND); //todo valid BACKGROUND
+        gameObjects().addGameObject(sun, Layer.BACKGROUND);
 
         // create Halo
         gameObjects().addGameObject(SunHalo.create(sun), Layer.BACKGROUND);
@@ -94,13 +105,21 @@ public class PepseGameManager extends GameManager {
 
     private void createFlora(Terrain terrain, int left, int right) {
         this.flora = new Flora(terrain::groundHeightAt);
+        createFloraInRange(left, right);
+    }
+
+    private void createFloraInRange(int left, int right) {
+        System.out.println();
         List<Tree> trees = flora.createInRange(left, right);
         for (Tree tree: trees) {
             gameObjects().addGameObject(tree, Layer.STATIC_OBJECTS);
+            //create leaves:
             List<Leaf> leaves = flora.createLeaves(tree);
             for (Leaf leaf: leaves) {
                 gameObjects().addGameObject(leaf, Layer.BACKGROUND);
+//                gameObjects().addGameObject(leaf, Layer.STATIC_OBJECTS);
             }
+            //create fruits:
             List<Fruit> fruits = flora.createFruits(tree);
             for (Fruit fruit: fruits) {
                 gameObjects().addGameObject(fruit, Layer.STATIC_OBJECTS);
@@ -145,7 +164,11 @@ public class PepseGameManager extends GameManager {
         GameObject sky = Sky.create(windowDimensions);
         gameObjects().addGameObject(sky, Layer.BACKGROUND);
     }
-
+    /**
+     * Creates and schedules the removal of a cloud drop after a delay.
+     *
+     * @param gameObject The cloud drop to be removed after the specified delay.
+     */
     public void createDrop(GameObject gameObject) {
         gameObjects().addGameObject(gameObject, Layer.BACKGROUND);
         new ScheduledTask(
@@ -175,22 +198,28 @@ public class PepseGameManager extends GameManager {
 
         if (newRight > oldRight + Block.SIZE * UPDATE_BORDER_FACTOR) { // walk right
             createTerrainInRange(oldRight, newRight + Block.SIZE * UPDATE_BORDER_FACTOR);
-            createFlora(terrain, oldRight, newRight + Block.SIZE * UPDATE_BORDER_FACTOR);
+//            createFlora(terrain, oldRight, newRight + Block.SIZE * UPDATE_BORDER_FACTOR);
+            createFlora(terrain, oldRight, newRight);
+
+//            createFloraInRange(oldRight, newRight + Block.SIZE * UPDATE_BORDER_FACTOR);
             this.borders = newBorders;
 //                System.out.println("created right terrein");
 //            if (newRight - oldRight > 3 * Block.SIZE) {
-////                removeOffScreen(oldLeft - Block.SIZE, newLeft);
-//                removeOffScreen(newLeft, newRight);
+//               removeOffScreen(oldLeft - Block.SIZE, newLeft);
+//            removeOffScreen(newLeft, newRight);
 //            }
         }
         if (newLeft < oldLeft - Block.SIZE * UPDATE_BORDER_FACTOR) { // walk left
             createTerrainInRange(newLeft - Block.SIZE * UPDATE_BORDER_FACTOR, oldLeft);
-            createFlora(terrain, newLeft - Block.SIZE * UPDATE_BORDER_FACTOR, oldLeft);
+//            createFlora(terrain, newLeft - Block.SIZE * UPDATE_BORDER_FACTOR, oldLeft);
+            createFlora(terrain, newLeft, oldLeft);
+
+//            createFloraInRange(newLeft - Block.SIZE * UPDATE_BORDER_FACTOR, oldLeft);
             this.borders = newBorders;
 //                System.out.println("created left terrein");
 //            if (oldLeft - newLeft > 3 * Block.SIZE) {
-//                removeOffScreen(newLeft, newRight);
-////                removeOffScreen(newRight + Block.SIZE, oldRight);
+//            removeOffScreen(newLeft, newRight);
+//                removeOffScreen(newRight + Block.SIZE, oldRight);
 //            }
         }
         removeOffScreen(newLeft, newRight);
@@ -198,18 +227,24 @@ public class PepseGameManager extends GameManager {
 
     private void removeOffScreen(float left, float right) {
         for (GameObject object : this.gameObjects()) {
-            if (object.getCenter().x() > right + UPDATE_BORDER_FACTOR * Block.SIZE ||
-                    object.getCenter().x() < left - UPDATE_BORDER_FACTOR * Block.SIZE) {
+            if (object.getCenter().x() > right + (UPDATE_BORDER_FACTOR * Block.SIZE) ||
+                    object.getCenter().x() < left - (UPDATE_BORDER_FACTOR * Block.SIZE)) {
                 for (int layer : RECYCLED_LAYERS) {
                     this.gameObjects().removeGameObject(object, layer);
                 }
                 if (object.getTag().equals(LEAF_TAG)){
                     this.gameObjects().removeGameObject(object, Layer.BACKGROUND);
+                    this.gameObjects().removeGameObject(object, Layer.STATIC_OBJECTS);
                 }
             }
         }
     }
 
+    /**
+     * Main method to run the game.
+     *
+     * @param args Command-line arguments.
+     */
     public static void main(String[] args) {
         new PepseGameManager().run();
     }
