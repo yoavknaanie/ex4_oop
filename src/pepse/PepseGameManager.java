@@ -84,13 +84,15 @@ public class PepseGameManager extends GameManager {
         createAvatar(inputListener, imageReader, windowController);
 
         // create flora
-        createFlora(terrain, LEFT_SCREEN_CORNER_START, (int) windowDimensions.x());
+        createFlora(terrain, LEFT_SCREEN_CORNER_START - UPDATE_BORDER_FACTOR * Block.SIZE,
+                (int) windowDimensions.x() + UPDATE_BORDER_FACTOR * Block.SIZE);
         gameObjects().layers().shouldLayersCollide(Layer.DEFAULT, Layer.STATIC_OBJECTS, true);
 
         // create cloud
         createCloud();
 
-        this.borders = new float[]{LEFT_SCREEN_CORNER_START, windowDimensions.x()};
+        this.borders = getNewBoarders();
+//                new float[]{LEFT_SCREEN_CORNER_START, windowDimensions.x()};
     }
 
 
@@ -129,7 +131,9 @@ public class PepseGameManager extends GameManager {
 
     private void createTerrain() {
         terrain = new Terrain(windowDimensions, seed);
-        List<Block> blocks = terrain.createInRange(LEFT_SCREEN_CORNER_START, (int) windowDimensions.x());
+        List<Block> blocks =
+                terrain.createInRange(LEFT_SCREEN_CORNER_START - UPDATE_BORDER_FACTOR * Block.SIZE,
+                (int) windowDimensions.x() + UPDATE_BORDER_FACTOR * Block.SIZE);
         for (Block block: blocks){
             gameObjects().addGameObject(block, Layer.STATIC_OBJECTS);
         }
@@ -144,8 +148,10 @@ public class PepseGameManager extends GameManager {
 
     private void createAvatar(UserInputListener inputListener, ImageReader imageReader,
                            WindowController windowController) {
-        float avatarFloorY = terrain.getGroundHeightAtX0();
-        Vector2 avatarFloorPos = new Vector2(ZERO, avatarFloorY);
+        float x = windowDimensions.x() * HALF;
+//        float avatarFloorY = terrain.getGroundHeightAtX0();
+        float avatarFloorY = terrain.groundHeightAt(x);
+        Vector2 avatarFloorPos = new Vector2(x, avatarFloorY);
         avatar = new Avatar(avatarFloorPos,  inputListener, imageReader);
         gameObjects().addGameObject(avatar);
 
@@ -191,50 +197,41 @@ public class PepseGameManager extends GameManager {
     public void update(float deltaTime) {
         super.update(deltaTime);
         float[] newBorders = getNewBoarders();
-        int oldLeft = (int) borders[LEFT_BORDER_IDX];
-        int oldRight = (int) borders[RIGHT_BORDER_IDX];
-        int newLeft = (int) newBorders[LEFT_BORDER_IDX];
-        int newRight = (int) newBorders[RIGHT_BORDER_IDX];
+        int oldLeft = (int) borders[LEFT_BORDER_IDX] - Block.SIZE * UPDATE_BORDER_FACTOR;
+        int oldRight = (int) borders[RIGHT_BORDER_IDX] + Block.SIZE * UPDATE_BORDER_FACTOR;
+        int newLeft = (int) newBorders[LEFT_BORDER_IDX] - Block.SIZE * UPDATE_BORDER_FACTOR;
+        int newRight = (int) newBorders[RIGHT_BORDER_IDX] + Block.SIZE * UPDATE_BORDER_FACTOR;
 
         if (newRight > oldRight + Block.SIZE * UPDATE_BORDER_FACTOR) { // walk right
-            createTerrainInRange(oldRight, newRight + Block.SIZE * UPDATE_BORDER_FACTOR);
+//            createTerrainInRange(oldRight, newRight + Block.SIZE * UPDATE_BORDER_FACTOR);
+            createTerrainInRange(oldRight, newRight);
 //            createFlora(terrain, oldRight, newRight + Block.SIZE * UPDATE_BORDER_FACTOR);
             createFlora(terrain, oldRight, newRight);
-
-//            createFloraInRange(oldRight, newRight + Block.SIZE * UPDATE_BORDER_FACTOR);
             this.borders = newBorders;
-//                System.out.println("created right terrein");
-//            if (newRight - oldRight > 3 * Block.SIZE) {
-//               removeOffScreen(oldLeft - Block.SIZE, newLeft);
-//            removeOffScreen(newLeft, newRight);
-//            }
+            removeOffScreen(newLeft, newRight);
         }
-        if (newLeft < oldLeft - Block.SIZE * UPDATE_BORDER_FACTOR) { // walk left
-            createTerrainInRange(newLeft - Block.SIZE * UPDATE_BORDER_FACTOR, oldLeft);
+        else if (newLeft < oldLeft - Block.SIZE * UPDATE_BORDER_FACTOR) { // walk left
+//            createTerrainInRange(newLeft - Block.SIZE * UPDATE_BORDER_FACTOR, oldLeft);
+            createTerrainInRange(newLeft, oldLeft);
 //            createFlora(terrain, newLeft - Block.SIZE * UPDATE_BORDER_FACTOR, oldLeft);
             createFlora(terrain, newLeft, oldLeft);
-
-//            createFloraInRange(newLeft - Block.SIZE * UPDATE_BORDER_FACTOR, oldLeft);
             this.borders = newBorders;
-//                System.out.println("created left terrein");
-//            if (oldLeft - newLeft > 3 * Block.SIZE) {
-//            removeOffScreen(newLeft, newRight);
-//                removeOffScreen(newRight + Block.SIZE, oldRight);
-//            }
+            removeOffScreen(newLeft, newRight);
         }
-        removeOffScreen(newLeft, newRight);
+//        removeOffScreen(newLeft, newRight);
     }
 
     private void removeOffScreen(float left, float right) {
         for (GameObject object : this.gameObjects()) {
-            if (object.getCenter().x() > right + (UPDATE_BORDER_FACTOR * Block.SIZE) ||
-                    object.getCenter().x() < left - (UPDATE_BORDER_FACTOR * Block.SIZE)) {
+//            if (object.getCenter().x() > right + (UPDATE_BORDER_FACTOR * Block.SIZE) ||
+//                    object.getCenter().x() < left - (UPDATE_BORDER_FACTOR * Block.SIZE)) {
+            if (object.getCenter().x() > right ||
+                    object.getCenter().x() < left) {
                 for (int layer : RECYCLED_LAYERS) {
                     this.gameObjects().removeGameObject(object, layer);
                 }
                 if (object.getTag().equals(LEAF_TAG)){
                     this.gameObjects().removeGameObject(object, Layer.BACKGROUND);
-                    this.gameObjects().removeGameObject(object, Layer.STATIC_OBJECTS);
                 }
             }
         }
