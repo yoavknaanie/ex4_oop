@@ -9,6 +9,7 @@ import pepse.util.ColorSupplier;
 import pepse.world.Block;
 
 import java.awt.*;
+import java.util.Objects;
 import java.util.Random;
 
 //todo check with friend what suppused to be done with that
@@ -22,7 +23,7 @@ public class Tree extends GameObject {
         super(groundHeight, new Vector2(0, 0), new RectangleRenderable(ColorSupplier.approximateColor(BASE_TREE_TRUNK_COLOR,
                 25)));
         setTag(TREE_TAG);
-        generateRandomHeight();
+        generateRandomHeight((int) groundHeight.x());
         this.setTopLeftCorner(groundHeight.subtract(new Vector2(0,treeTrunkHeight/2)));
         this.setDimensions(new Vector2(Block.SIZE, treeTrunkHeight));
 //        this.setTopLeftCorner(groundHeight.subtract(new Vector2(0,treeTrunkHeight/2)));
@@ -30,8 +31,9 @@ public class Tree extends GameObject {
         physics().setMass(GameObjectPhysics.IMMOVABLE_MASS);
     }
 
-    private void generateRandomHeight() {
-        Random random = new Random();
+    private void generateRandomHeight(int x) {
+//        Random random = new Random();
+        Random random = new Random(Objects.hash(x, 42));
         treeTrunkHeight = 100 + (int)(random.nextFloat() * 50); // Random height in range [100, 150]
     }
 

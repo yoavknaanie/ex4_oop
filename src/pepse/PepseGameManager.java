@@ -30,7 +30,7 @@ public class PepseGameManager extends GameManager {
 
     private Vector2 windowDimensions;
     private static final int seed = 42;
-    public static final int CYCLE_LENGTH = 4;
+    public static final int CYCLE_LENGTH = 30;
     private Terrain terrain;
     private Flora flora;
     private static final Vector2 ENERGY_POSITION =  new Vector2(10, 10);
@@ -64,7 +64,8 @@ public class PepseGameManager extends GameManager {
         createAvatar(inputListener, imageReader, windowController);
 
         // create flora
-        createFlora(terrain);
+//        createFlora(terrain);
+        createFlora(terrain, 0, (int) windowDimensions.x());
         gameObjects().layers().shouldLayersCollide(Layer.DEFAULT, Layer.STATIC_OBJECTS, true);
 
         // create cloud
@@ -83,10 +84,11 @@ public class PepseGameManager extends GameManager {
     }
 
 
-    private void createFlora(Terrain terrain) {
+    private void createFlora(Terrain terrain, int left, int right) {
         this.flora = new Flora(terrain::groundHeightAt);
         // todo when implamant infinite world, minX shouldnt be 0:
-        List<Tree> trees = flora.createInRange(0, (int) windowDimensions.x());
+//        List<Tree> trees = flora.createInRange(0, (int) windowDimensions.x());
+        List<Tree> trees = flora.createInRange(left, right);
         for (Tree tree: trees) {
             gameObjects().addGameObject(tree, Layer.STATIC_OBJECTS);
             List<Leaf> leaves = flora.createLeaves(tree);
@@ -165,32 +167,32 @@ public class PepseGameManager extends GameManager {
         int newLeft = (int) newBorders[0];
         int newRight = (int) newBorders[1];
 
-        if (newRight > oldRight) { // walk right
-//            System.out.println("oldLeft = " + oldLeft);
-//            System.out.println("oldRight = " + oldRight);
-//            System.out.println("newLeft = " + newLeft);
-//            System.out.println("newRight = " + newRight);
-            createTerrainInRange(oldRight, newRight + Block.SIZE * 10);
+        if (newRight > oldRight + Block.SIZE * 4) { // walk right
+            createTerrainInRange(oldRight, newRight + Block.SIZE * 4);
+            createFlora(terrain, oldRight, newRight + Block.SIZE * 4);
             this.borders = newBorders;
 //                System.out.println("created right terrein");
-//            removeOffScreen(oldLeft - Block.SIZE, newLeft);
+//            if (newRight - oldRight > 3 * Block.SIZE) {
+////                removeOffScreen(oldLeft - Block.SIZE, newLeft);
+//                removeOffScreen(newLeft, newRight);
+//            }
         }
-        if (newLeft < oldLeft) { // walk left
-//            System.out.println("oldLeft = " + oldLeft);
-//            System.out.println("oldRight = " + oldRight);
-//            System.out.println("newLeft = " + newLeft);
-//            System.out.println("newRight = " + newRight);
-            createTerrainInRange(newLeft - Block.SIZE * 10, oldLeft);
+        if (newLeft < oldLeft - Block.SIZE * 4) { // walk left
+            createTerrainInRange(newLeft - Block.SIZE * 4, oldLeft);
+            createFlora(terrain, newLeft - Block.SIZE * 4, oldLeft);
             this.borders = newBorders;
 //                System.out.println("created left terrein");
-//            removeOffScreen(newRight + Block.SIZE, oldRight);
+//            if (oldLeft - newLeft > 3 * Block.SIZE) {
+//                removeOffScreen(newLeft, newRight);
+////                removeOffScreen(newRight + Block.SIZE, oldRight);
+//            }
         }
+        removeOffScreen(newLeft, newRight);
     }
 
     private void removeOffScreen(float left, float right) {
-
         for (GameObject object : this.gameObjects()) {
-            if (object.getCenter().x() > right || object.getCenter().x() < left ) {
+            if (object.getCenter().x() > right + 4*Block.SIZE || object.getCenter().x() < left - 4*Block.SIZE) {
                 for (int layer : RECYCLED_LAYERS) {
                     this.gameObjects().removeGameObject(object, layer);
                 }

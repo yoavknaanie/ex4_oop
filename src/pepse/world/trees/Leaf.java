@@ -10,7 +10,7 @@ import java.awt.*;
 import java.util.Random;
 
 public class Leaf extends GameObject {
-    private static  final Vector2 dimensions = new Vector2(Block.SIZE, Block.SIZE);
+    private static final Vector2 dimensions = new Vector2(Block.SIZE, Block.SIZE);
     private static final Color BASE_LEAF_COLOR = new Color(50, 200, 30);
     public static final String LEAF_TAG = "leaf";
 

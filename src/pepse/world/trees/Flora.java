@@ -33,13 +33,17 @@ public class Flora {
     //    todo think about the return val:
     public List<Tree> createInRange(int minX, int maxX) {
 //        List<Tree> trees = new ArrayList<Tree>();
-        for (int x = minX+Block.SIZE/2; x <= maxX; x+= Block.SIZE) {
-//        for (int x = minX; x <= maxX; x+= Block.SIZE) {
+//        for (int x = minX+Block.SIZE/2; x <= maxX; x+= Block.SIZE) {
+//        float remainderByBlockSize = (maxX - minX)%Block.SIZE;
+        minX = minX - (minX % Block.SIZE);
+        for (int x = minX + Block.SIZE/2; x <= maxX; x+= Block.SIZE) {
+//        for (float x = minX + remainderByBlockSize; x <= maxX; x+= Block.SIZE) {
             // Create a tree at each X-coordinate within the range
-            if (plantOrNotToPlant()){
+//            if (plantOrNotToPlant()){
+            if (randomBySeed(x).nextFloat() > TREE_PLANT_PROBABILITY_THRESHOLD){
                 float plantLocation = (float) x;
-                float groundHeightFloat = groundHeightGetter.apply(plantLocation - (Block.SIZE/2));
 //                float groundHeightFloat = groundHeightGetter.apply(plantLocation);
+                float groundHeightFloat = groundHeightGetter.apply(plantLocation - (Block.SIZE/2));
                 int groundHeight = ((int) groundHeightFloat) + 1;
 //                int groundHeight = ((int) groundHeightFloat) + Block.SIZE + 1;
                 Tree tree = new Tree(new Vector2(x, groundHeight));
@@ -68,7 +72,9 @@ public class Flora {
                 if (x >= trunkMinX && x <= trunkMaxX) {
                     continue; // Skip positions on the trunk
                 }
-                if (random.nextFloat() <= FRUIT_CREATION_PROBABILITY) {
+//                if (random.nextFloat() <= FRUIT_CREATION_PROBABILITY) {
+//                if (randomBySeed(x).nextFloat() <= FRUIT_CREATION_PROBABILITY) {
+                if (randomBySeed(x*y).nextFloat() <= FRUIT_CREATION_PROBABILITY) {
                     Fruit fruit = new Fruit(new Vector2(x, y));
                     fruits.add(fruit);
                 }
@@ -89,7 +95,9 @@ public class Flora {
         // add leaves:
         for (float y = minY; y <= maxY; y += Block.SIZE) {
             for (float x = minX; x <= maxX; x += Block.SIZE) {
-                if (random.nextFloat() <= LEAF_CREATION_PROBABILITY) {
+//                if (random.nextFloat() <= LEAF_CREATION_PROBABILITY) {
+//                if (randomBySeed(x).nextFloat() <= LEAF_CREATION_PROBABILITY) {
+                if (randomBySeed(x*y).nextFloat() <= LEAF_CREATION_PROBABILITY) {
                     Leaf leaf = createLeafWithTasks(x, y);
                     leaves.add(leaf);
                 }
@@ -109,6 +117,7 @@ public class Flora {
         new ScheduledTask(
                 leaf,
                 TASK_DELAY_MULTIPLIER * random.nextFloat(),
+//                TASK_DELAY_MULTIPLIER * randomBySeed(leaf.getDimensions().x()).nextFloat(),
                 false,
                 () -> createAngleTransition(leaf)
         );
@@ -118,6 +127,7 @@ public class Flora {
         new ScheduledTask(
                 leaf,
                 TASK_DELAY_MULTIPLIER * random.nextFloat(),
+//                TASK_DELAY_MULTIPLIER * randomBySeed(leaf.getDimensions().x()).nextFloat(),
                 false,
                 () -> createShrinkTransition(leaf)
         );
@@ -149,8 +159,12 @@ public class Flora {
         );
     }
 
-    private static boolean plantOrNotToPlant() {
-        float randomFloat = random.nextFloat(0,1);
-        return randomFloat > TREE_PLANT_PROBABILITY_THRESHOLD;
+//    private static boolean plantOrNotToPlant() {
+//        float randomFloat = random.nextFloat(0,1);
+//        return randomFloat > TREE_PLANT_PROBABILITY_THRESHOLD;
+//    }
+
+    private Random randomBySeed(float x) {
+        return new Random(Objects.hash(x, 42));
     }
 }

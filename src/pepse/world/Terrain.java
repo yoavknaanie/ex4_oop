@@ -26,7 +26,7 @@ public class Terrain {
     }
 
     public float groundHeightAt(float x) {
-        float noise = (float) noiseGenerator.noise(x, 15*Block.SIZE);
+        float noise = (float) noiseGenerator.noise(x, 10*Block.SIZE);
         return (float) Math.floor((groundHeightAtX0 + noise)/Block.SIZE) * Block.SIZE;
 //        new NoiseGenerator(seed, (int)groundHeightAtX0);
 //        return groundHeightAtX0;
